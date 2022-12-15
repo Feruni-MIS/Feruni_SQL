@@ -1,0 +1,63 @@
+TRUNCATE TABLE [dbo].[_returnorder_ft_returnorderline]
+INSERT INTO [_returnorder_ft_returnorderline]
+
+SELECT 
+       T1.[RMANUMBER],
+       T1.[RETURNORDERNUMBER]      AS 'SALESORDERNUMBER',
+       T1.[INVOICECUSTOMERACCOUNTNUMBER],
+       T1.[RETURNSALESQUANTITY] AS 'ORDEREDSALESQUANTITY',
+       T1.[RETURNINVENTORYLOTID]   AS 'INVENTORYLOTID',
+       T1.[ITEMNUMBER],
+       T1.[LINEAMOUNT],
+       T1.[LINEDESCRIPTION],
+       T1.[RETURNSTATUS],
+       T1.[SALESPRICE],
+       T1.[MAINACCOUNTIDDISPLAYVALUE],
+       T1.[PRODUCTCONFIGURATIONID],
+       T1.[ITEMBATCHNUMBER],
+       T1.[RETURNSITEID],
+       T1.[PRODUCTCOLORID],
+       T1.[PRODUCTSIZEID],
+       T1.[ORDEREDINVENTORYSTATUSID],
+       T1.[PRODUCTSTYLEID],
+       T1.[RETURNADDRESSLOCATIONID] AS 'DELIVERYADDRESSLOCATIONID',
+       T1.[ORDERCREATIONDATE] AS 'ORDERCREATIONDATETIME',
+       T1.[DATAAREAID],
+       T2.[REPLACEMENTSALESORDERNUMBER],
+       T2.[SALESGROUP] AS 'COMMISSIONSALESREPRESENTATIVEGROUPID',
+       T2.[SALESRESPONSIBLE] AS 'Order Responsible Personnel Name',
+       T2.[SALESTAKER] AS 'Order Taker Personnel Name',
+       T1.[RETURNORDERNUMBER] + ';'
+       + T1.[RETURNINVENTORYLOTID] AS 'SO Line Helper',
+       T3.[SO, RO Line Status Description],
+       'Return Order Line Table'   AS "Table",
+       'Product Helper' = Substring
+                          (
+                              "ITEMNUMBER"
+                              + IIF( T1.[PRODUCTCOLORID] = NULL, '',T1.[PRODUCTCOLORID] )
+                              + IIF( T1.[PRODUCTSTYLEID] = NULL, '',T1.[PRODUCTSTYLEID] )
+                              + IIF( T1.[PRODUCTSIZEID] = NULL, '',T1.[PRODUCTSIZEID] )
+                              + IIF( T1.[PRODUCTCONFIGURATIONID] = NULL,'',T1.[PRODUCTCONFIGURATIONID] ),
+                               1,
+                               200
+                          )
+FROM   [dbo].[ReturnOrderLineStaging] AS T1
+LEFT JOIN 
+(
+  SELECT 
+        [REPLACEMENTSALESORDERNUMBER],
+        [RMANUMBER], 
+        [SALESTAKER], 
+        [SALESRESPONSIBLE], 
+        [SALESGROUP]
+  FROM   [dbo].[ReturnOrderHeaderStaging]
+) T2
+ON T1.[RMANUMBER] = T2.[RMANUMBER]
+LEFT JOIN 
+(
+  SELECT 
+        [Line Status],
+        [RO Line Status Description] AS 'SO, RO Line Status Description'
+  FROM   [dbo].[_salesorder_df_solinestatus]
+) T3
+ON T1.[RETURNSTATUS] = T3.[Line Status]
