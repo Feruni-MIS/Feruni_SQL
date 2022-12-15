@@ -1,2 +1,2 @@
-# feruni_bi
+# Feruni BI Script
 Feruni SQL script
