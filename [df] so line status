@@ -1,0 +1,7 @@
+INSERT INTO [dbo].[SO Line Status]
+VALUES(1, 'Open Order', 'Created'),
+(2, 'Delivered', ''),
+(3, 'Invoiced', ''),	
+(4, 'Cancelled', 'Open Order'),
+(5, '', 'Invoiced'),
+(6, '', 'Cancelled')
