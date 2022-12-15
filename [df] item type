@@ -1,0 +1,18 @@
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[_transaction_df_itemtype](
+	[ENUMITEMVALUE] [int] NULL,
+	[ENUMITEMNAME] [varchar](255) NULL, 
+    [ENUMNAME] [varchar](255) NULL
+) ON [PRIMARY]
+GO
+
+
+INSERT INTO [dbo].[_transaction_df_itemtype]
+VALUES(0, 'Item', 'ItemType'),
+(1, 'DEL_BOM', 'ItemType'),
+(2, 'Service', 'ItemType'),
+(3, 'DEL_Formula', 'ItemType'), 
+(100, 'DEL_Asset_RU', 'ItemType')
