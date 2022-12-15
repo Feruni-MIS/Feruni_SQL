@@ -1,0 +1,328 @@
+DELETE FROM [dbo].[_product_dm_allreleasedproductmaster]
+INSERT INTO [dbo].[_product_dm_allreleasedproductmaster]
+
+SELECT 
+        T7.PRODUCTCONFIGURATIONID,
+        T7.PRODUCTSIZEID,
+        T7.PRODUCTCOLORID,
+        T7.PRODUCTSTYLEID,
+        T7.PRODUCTVERSIONID,
+        T7.ITEMNUMBER,
+        T7.PRODUCTNUMBER,
+        T7.PRODUCTNAME,
+        T7.PRODUCTLIFECYCLESTATEID,
+        T7.DATAAREAID,
+        T7.ITEMMODELGROUPID,
+        T7.PRODUCTGROUPID,
+        T7.[Product Master Name],
+        T7.ItemType,
+        T7.[Product Master Retail Product Category Name],
+        T7.[TABLE],
+        T7.PRODUCTSUBTYPE,
+        T7.[Product ID],
+        T7.[Production Group],
+        T7.PRODUCTDIMENSIONGROUPNAME,
+        T7.RETAILPRODUCTCATEGORYNAME,
+        T7.SERVICETYPE,
+        T7.PROJECTABC,
+        T7.FRSABC, 
+        'ctn/plt' = CASE
+                        WHEN T7.[uomI_ctn/plt] > 0 THEN T7.[uomI_ctn/plt]
+                        ELSE T7.[uom_ctn/plt]
+                    END,
+        'm2/pcs' = CASE
+                    WHEN T7.[uomI_m2/pcs] > 0 THEN T7.[uomI_m2/pcs]
+                    ELSE T7.[uom_m2/pcs]
+                    END,
+        'kg/pcs' = CASE
+                    WHEN T7.[uomI_kg/pcs] > 0 THEN T7.[uomI_kg/pcs]
+                    ELSE T7.[uom_kg/pcs]
+                    END,
+        'pcs/ctn' = CASE
+                        WHEN T7.[uomI_pcs/ctn] > 0 THEN T7.[uomI_pcs/ctn]
+                        ELSE T7.[uom_pcs/ctn]
+                    END,
+        'ctn/pcs' = CASE
+                        WHEN T7.[uomI_ctn/pcs] > 0 THEN T7.[uomI_ctn/pcs]
+                        ELSE T7.[uom_ctn/pcs]
+                    END,
+        'kg/ctn' = CASE
+                    WHEN T7.[uomI_kg/ctn] > 0 THEN T7.[uomI_kg/ctn]
+                    ELSE T7.[uom_kg/ctn]
+                    END,
+        'Product Helper' = Substring(
+        T7.[ITEMNUMBER]
+        + IIF(T7.[PRODUCTCOLORID]= ''
+        , '', T7.[PRODUCTCOLORID])
+        + IIF(T7.[PRODUCTSTYLEID]='', '', T7.[PRODUCTSTYLEID])
+        + IIF(T7.[PRODUCTSIZEID]='', '', T7.[PRODUCTSIZEID])
+        + IIF(T7.[PRODUCTCONFIGURATIONID]
+                            ='', '', T7.[PRODUCTCONFIGURATIONID] ),
+        1, 200)
+        ,
+        'ItemType(Marketing)' = Replace(T7.[ItemType], 'Item', 'SKU')
+    FROM   
+    (
+        SELECT *
+        FROM   
+        (
+            SELECT *
+            FROM   
+            (
+                SELECT *
+                FROM   
+                (
+                    SELECT
+                    T6.[PRODUCTCONFIGURATIONID],
+                    T6.[PRODUCTSIZEID],
+                    T6.[PRODUCTCOLORID],
+                    T6.[PRODUCTSTYLEID],
+                    T6.[PRODUCTVERSIONID],
+                    T6.[ITEMNUMBER],
+                    T6.[PRODUCTNUMBER],
+                    T6.[PRODUCTNAME],
+                    T6.[PRODUCTLIFECYCLESTATEID],
+                    T6.[DATAAREAID],
+                    T6.[ITEMMODELGROUPID],
+                    T6.[PRODUCTGROUPID],
+                    T6.[Product Master Name],
+                    'ItemType' = Replace(Replace(T6.[ItemType2],
+                                            '1',
+                                            'Item'), '2',
+                                    'Service')
+                    ,
+                    T6.[Product Master Retail Product Category Name],
+                    T6.[TABLE],
+                    T6.[PRODUCTSUBTYPE],
+                    T6.[Product ID],
+                    T6.[Production Group],
+                    T6.[PRODUCTDIMENSIONGROUPNAME],
+                    T6.[RETAILPRODUCTCATEGORYNAME],
+                    T6.[SERVICETYPE]
+                    FROM   
+                    (
+                        SELECT 
+                            T5.[PRODUCTCONFIGURATIONID],
+                            T5.[PRODUCTSIZEID],
+                            T5.[PRODUCTCOLORID],
+                            T5.[PRODUCTSTYLEID],
+                            T5.[PRODUCTVERSIONID],
+                            T5.[ITEMNUMBER],
+                            T5.[PRODUCTNUMBER],
+                            T5.[PRODUCTNAME],
+                            T5.[PRODUCTLIFECYCLESTATEID],
+                            T5.[DATAAREAID],
+                            T5.[ITEMMODELGROUPID],
+                            T5.[PRODUCTGROUPID],
+                            T5.[Product Master Name],
+                            ItemType2 = Cast(T5.[PRODUCTTYPE] AS VARCHAR(
+                                            MAX)),
+                            T5.[Product Master Retail Product Category Name],
+                            T5.[TABLE],
+                            T5.[PRODUCTSUBTYPE],
+                            T5.[Product ID],
+                            T5.[Production Group],
+                            '' AS PRODUCTDIMENSIONGROUPNAME,
+                            '' AS RETAILPRODUCTCATEGORYNAME,
+                            '' AS SERVICETYPE
+                            FROM  
+                            (
+                                SELECT *
+                                        FROM   
+                                        (
+                                            SELECT
+                                                *,
+                                                'Released Product Variant V2' AS 'TABLE',
+                                                '3'                           AS
+                                                'PRODUCTSUBTYPE'
+                                                ,
+                                                'Product ID' = Replace( Replace(Replace([PRODUCTNUMBER],'-S2','(2)'), '-S', ''), 'OB', '')
+                                            FROM
+                                            (
+                                                SELECT 
+                                                    [PRODUCTCONFIGURATIONID],
+                                                    [PRODUCTSIZEID],
+                                                    [PRODUCTCOLORID],
+                                                    [PRODUCTSTYLEID],
+                                                    [PRODUCTVERSIONID],
+                                                    [DEFINITIONGROUP],
+                                                    [EXECUTIONID],
+                                                    [ISSELECTED],
+                                                    [TRANSFERSTATUS],
+                                                    [ITEMNUMBER],
+                                                    [PRODUCTMASTERNUMBER],
+                                                    [PRODUCTVARIANTNUMBER] AS PRODUCTNUMBER,
+                                                    [PRODUCTNAME],
+                                                    [PRODUCTSEARCHNAME],
+                                                    [PRODUCTDESCRIPTION],
+                                                    [PARTITION],
+                                                    [DATAAREAID],
+                                                    [SYNCSTARTDATETIME] ,
+                                                    PRODUCTLIFECYCLESTATEID = CASE WHEN [PRODUCTLIFECYCLESTATEID] = '' 
+                                                                            THEN 'BSO'
+                                                                            ELSE [PRODUCTLIFECYCLESTATEID]
+                                                                            END
+                                                FROM   [dbo].[EcoResReleasedProductVariantV2Staging]
+                                            ) T1
+                                            LEFT JOIN
+                                            (
+                                                SELECT 
+                                                        T1.[ITEMMODELGROUPID],
+                                                        T1.[PRODUCTGROUPID],
+                                                        T1.[PRODUCTNAME]               AS
+                                                        'Product Master Name',
+                                                        T1.[PRODUCTTYPE],
+                                                        T1.[RETAILPRODUCTCATEGORYNAME] AS
+                                                        'Product Master Retail Product Category Name',
+                                                        T1.[PRODUCTNUMBER]             AS PRODUCTNUMBER_rpc2
+                                                FROM [dbo].[EcoResReleasedProductCreationV2Staging] AS T1
+                                                LEFT JOIN [dbo].[EcoResReleasedProductV2Staging] AS T2
+                                                ON T2.[PRODUCTNUMBER] = T1.[PRODUCTNUMBER]
+                                                WHERE  T1.[PRODUCTNUMBER] != '0'
+                                            ) T2
+                                            ON T1.[PRODUCTMASTERNUMBER] = T2.[PRODUCTNUMBER_rpc2]
+                                        ) T3
+                                        LEFT JOIN
+                                        (
+                                                SELECT 
+                                                        [PRODUCTIONGROUPID] AS
+                                                        'Production Group',
+                                                        [PRODUCTNUMBER]     AS
+                                                        PRODUCTNUMBER_rp2
+                                                FROM   [dbo].[EcoResReleasedProductV2Staging]
+                                        ) T4
+                                        ON T3.[PRODUCTMASTERNUMBER] =  T4.[PRODUCTNUMBER_rp2]
+                            ) T5
+                            
+                            UNION
+
+                                                    SELECT 
+                                                    '' AS PRODUCTCONFIGURATIONID,
+                                                    '' AS PRODUCTSIZEID,
+                                                    '' AS PRODUCTCOLORID,
+                                                    '' AS PRODUCTSTYLEID,
+                                                    '' AS PRODUCTVERSIONID,
+                                                    T4.[ITEMNUMBER],
+                                                    T4.[PRODUCTNUMBER],
+                                                    T4.[PRODUCTNAME],
+                                                    T4.[PRODUCTLIFECYCLESTATEID],
+                                                    T4.[DATAAREAID],
+                                                    T4.[ITEMMODELGROUPID],
+                                                    T4.[PRODUCTGROUPID],
+                                                    '' AS 'Product Master Name',
+                                                    ItemType2 = Cast(T4.[PRODUCTTYPE] AS VARCHAR(MAX)),
+                                                    '' AS 'Product Master Retail Product Category Name',
+                                                    T4.[TABLE],
+                                                    T4.[PRODUCTSUBTYPE],
+                                                    T4.[Product ID],
+                                                    T4.[Production Group],
+                                                    T4.[PRODUCTDIMENSIONGROUPNAME],
+                                                    T4.[RETAILPRODUCTCATEGORYNAME],
+                                                    T4.[SERVICETYPE]
+                                                    FROM   
+                                                    (
+                                                        SELECT 
+                                                            T1.*,
+                                                            'Released Product Creation V2' AS 'Table',
+                                                            T1.[PRODUCTNUMBER]           AS 'Product ID',
+                                                            T2.[PRODUCTIONGROUPID]        AS
+                                                            'Production Group',
+                                                            T2.[PRODUCTLIFECYCLESTATEID]  AS
+                                                            'PRODUCTLIFECYCLESTATEID'
+                                                        FROM   [dbo].[EcoResReleasedProductCreationV2Staging]AS T1
+                                                        LEFT JOIN [dbo].[EcoResReleasedProductV2Staging] AS T2
+                                                        ON T2.[PRODUCTNUMBER] =  T1.[PRODUCTNUMBER]
+                                                        WHERE  T1.[PRODUCTNUMBER] != '0'
+                                                    ) T4
+                    )T6
+                    WHERE  T6.[PRODUCTSUBTYPE] <> '2'
+                )T7
+                LEFT JOIN 
+                (
+                   SELECT 
+                        T1.[PRODUCTVARIANTNUMBER] AS PRODUCTNUMBER_pv2,
+                        T1.[PROJECTABC],
+                        T1.[FRSABC]
+                    FROM   [dbo].[EcoResProductVariantStaging] T1
+                    LEFT JOIN [dbo].[EcoResProductV2Staging] T2
+                    ON T1.[PRODUCTMASTERNUMBER] = T2.[PRODUCTNUMBER]
+                ) T8
+                ON T7.[PRODUCTNUMBER] = T8.[PRODUCTNUMBER_pv2]
+            )T9
+       LEFT JOIN 
+       (
+           SELECT
+                T3.[PRODUCTNUMBER] AS PRODUCTNUMBER_uom,
+                Cast(ISNULL(T3.[ctn/plt], 0)AS DECIMAL(19, 8)) AS 'uom_ctn/plt',
+                Cast(ISNULL(T3.[m2/pcs], 0)AS DECIMAL(19, 8)) AS 'uom_m2/pcs',
+                Cast(ISNULL(T3.[kg/pcs], 0)AS DECIMAL(19, 8)) AS 'uom_kg/pcs',
+                Cast(ISNULL(T3.[pcs/ctn], 0)AS DECIMAL(19, 8)) AS 'uom_pcs/ctn',
+                Cast(ISNULL(T3.[ctn/pcs], 0)AS DECIMAL(19, 8)) AS 'uom_ctn/pcs',
+                Cast(ISNULL(T3.[kg/pcs] * T3.[pcs/ctn], 0) AS DECIMAL(19, 5)) AS'uom_kg/ctn'
+            FROM   
+            (
+                SELECT *
+                FROM
+                (
+                   SELECT 
+                       [FACTOR],
+                       [PRODUCTNUMBER],
+                       CONCAT([TOUNITSYMBOL], '/',
+                       [FROMUNITSYMBOL]) AS 'Unit Changing'
+                    FROM   [dbo].[EcoResProductUnitOfMeasureConversionStaging] 
+                ) T1
+                WHERE  T1.[Unit Changing] <> 'Bag/plt'
+                        AND T1.[Unit Changing] <> 'mm/pcs'
+                        AND T1.[Unit Changing] <> 'pcs/plt'
+                        AND T1.[Unit Changing] <> 'plt/ctn'
+            ) T2
+            PIVOT 
+            (
+                Sum(FACTOR) FOR T2.[Unit Changing] IN ([ctn/plt],
+                                                           [m2/pcs],
+                                                           [kg/pcs],
+                                                           [pcs/ctn],
+                                                           [ctn/pcs]) 
+            ) T3
+        )T4
+        ON T9.[PRODUCTNUMBER] = T4.[PRODUCTNUMBER_uom])T5
+        LEFT JOIN
+        (
+            SELECT 
+                T3.[PRODUCTNUMBER] AS  PRODUCTNUMBER_uomI
+               ,
+               Cast(ISNULL(T3.[ctn/plt], 0)AS DECIMAL(19, 8))  AS 'uomI_ctn/plt',
+               Cast(ISNULL(T3.[m2/pcs], 0)AS DECIMAL(19, 8)) AS 'uomI_m2/pcs',
+               Cast(ISNULL(T3.[kg/pcs], 0)AS DECIMAL(19, 8)) AS 'uomI_kg/pcs',
+               Cast(ISNULL(T3.[pcs/ctn], 0)AS DECIMAL(19, 8)) AS 'uomI_pcs/ctn',
+               Cast(ISNULL(T3.[ctn/pcs], 0)AS DECIMAL(19, 8)) AS 'uomI_ctn/pcs',
+               Cast(ISNULL(T3.[kg/pcs] * T3.[pcs/ctn], 0) AS DECIMAL(19, 5)) AS 'uomI_kg/ctn'
+            FROM   
+            (
+                SELECT *
+                FROM  
+                (
+                    SELECT 
+                        [FACTOR],
+                        [PRODUCTNUMBER],
+                        CONCAT([TOUNITSYMBOL], '/', [FROMUNITSYMBOL]) AS 'Unit Changing'
+                    FROM   [dbo].[EcoResProductUnitOfMeasureConversionStaging]
+               ) T1
+               WHERE  T1.[Unit Changing] <> 'Bag/plt'
+               AND T1.[Unit Changing] <> 'mm/pcs'
+               AND T1.[Unit Changing] <> 'pcs/plt'
+               AND T1.[Unit Changing] <> 'plt/ctn'
+            ) T2
+            PIVOT 
+            ( 
+                Sum(FACTOR) FOR T2.[Unit Changing] IN ([ctn/plt],
+                                                        [m2/pcs],
+                                                        [kg/pcs],
+                                                        [pcs/ctn],
+                                                        [ctn/pcs]) 
+            ) T3
+            WHERE  T3.[PRODUCTNUMBER] LIKE '%I-%'
+            AND ( T3.[PRODUCTNUMBER] NOT LIKE '%X-I-%' )
+        )T6
+        ON T5.[ITEMNUMBER] = T6.[PRODUCTNUMBER_uomI]
+    ) T7
