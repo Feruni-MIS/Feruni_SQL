@@ -1,0 +1,127 @@
+TRUNCATE TABLE [dbo].[_finance_dm_financialdimension]
+INSERT INTO [dbo].[_finance_dm_financialdimension]
+
+SELECT 
+    T4.[DATAAREAID], 
+    T4.[FinDim Code],
+    T4.[Department],
+    T4.[Cost Center],
+    T5.[Department Description],
+    T5.[Division Nature],
+    COALESCE(T6.[Cost Center Description], '') AS 'Cost Center Description'
+FROM 
+(
+    SELECT 
+        T3.[DATAAREAID],
+        T3.[FinDim Code],
+        CASE
+            WHEN T3.[Department] = NULL or T3.[Department] = '' THEN 'D000'
+            ELSE T3.[Department]
+            END 
+            AS 'Department',
+        T3.[Cost Center] 
+    FROM 
+    (
+            SELECT T2.[ACCOUNTDISPLAYVALUE], T2.[DATAAREAID],T2.[FinDim Code],
+            CASE
+                WHEN CHARINDEX('D',T2.[ACCOUNTDISPLAYVALUE]) >0 
+                THEN SUBSTRING(T2.[ACCOUNTDISPLAYVALUE],CHARINDEX('D',T2.[ACCOUNTDISPLAYVALUE]),4)
+                ELSE ''
+            END AS 'Department'
+            ,
+            CASE
+                WHEN CHARINDEX('C',T2.[ACCOUNTDISPLAYVALUE]) >0 
+                THEN SUBSTRING(T2.[ACCOUNTDISPLAYVALUE],CHARINDEX('C',T2.[ACCOUNTDISPLAYVALUE]),4)
+                WHEN CHARINDEX('M',T2.[ACCOUNTDISPLAYVALUE]) >0 AND CHARINDEX('M',T2.[ACCOUNTDISPLAYVALUE]) >0 
+                THEN SUBSTRING(T2.[ACCOUNTDISPLAYVALUE],CHARINDEX('M',T2.[ACCOUNTDISPLAYVALUE]),4)
+                WHEN CHARINDEX('P',T2.[ACCOUNTDISPLAYVALUE]) >0 AND CHARINDEX('P',T2.[ACCOUNTDISPLAYVALUE]) >0 
+                THEN SUBSTRING(T2.[ACCOUNTDISPLAYVALUE],CHARINDEX('P',T2.[ACCOUNTDISPLAYVALUE]),4)
+                WHEN CHARINDEX('H',T2.[ACCOUNTDISPLAYVALUE]) >0 AND CHARINDEX('H',T2.[ACCOUNTDISPLAYVALUE]) >0 
+                THEN SUBSTRING(T2.[ACCOUNTDISPLAYVALUE],CHARINDEX('H',T2.[ACCOUNTDISPLAYVALUE]),4)
+                WHEN CHARINDEX('G',T2.[ACCOUNTDISPLAYVALUE]) >0 AND CHARINDEX('G',T2.[ACCOUNTDISPLAYVALUE]) >0 
+                THEN SUBSTRING(T2.[ACCOUNTDISPLAYVALUE],CHARINDEX('G',T2.[ACCOUNTDISPLAYVALUE]),4)
+                WHEN CHARINDEX('T',T2.[ACCOUNTDISPLAYVALUE]) >0 AND CHARINDEX('T',T2.[ACCOUNTDISPLAYVALUE]) >0 
+                THEN SUBSTRING(T2.[ACCOUNTDISPLAYVALUE],CHARINDEX('T',T2.[ACCOUNTDISPLAYVALUE]),4)
+                WHEN CHARINDEX('R',T2.[ACCOUNTDISPLAYVALUE]) >0 AND CHARINDEX('R',T2.[ACCOUNTDISPLAYVALUE]) >0 
+                THEN SUBSTRING(T2.[ACCOUNTDISPLAYVALUE],CHARINDEX('R',T2.[ACCOUNTDISPLAYVALUE]),4)
+                ELSE ''
+            END AS 'Cost Center'
+        FROM
+        (
+            SELECT 
+                [ACCOUNTDISPLAYVALUE],
+                [DATAAREAID],  
+                'FinDim Code' = 
+                    [DATAAREAID]+RIGHT([ACCOUNTDISPLAYVALUE],LEN([ACCOUNTDISPLAYVALUE])-CHARINDEX('-',[ACCOUNTDISPLAYVALUE])+1)
+            FROM [dbo].[GeneralJournalAccountEntryStaging]
+            GROUP BY 
+                [DATAAREAID], 
+                [ACCOUNTDISPLAYVALUE], 
+                [DATAAREAID]+RIGHT([ACCOUNTDISPLAYVALUE],LEN([ACCOUNTDISPLAYVALUE])-CHARINDEX('-',[ACCOUNTDISPLAYVALUE])+1)
+
+            ---UNION FUNCTION REQUIRED COLUMN NAME AND THE POSITION OF COLUMN TO BE SAME
+            UNION
+            SELECT 
+                T1.[ACCOUNTDISPLAYVALUE], 
+                T1.[DATAAREAID],
+                T1.[FinDim Code] 
+            FROM 
+            (
+                SELECT [DIMENSIONDISPLAYVALUE] AS 'ACCOUNTDISPLAYVALUE', [LEGALENTITYID] AS 'DATAAREAID',
+                'FinDim Code' = [LEGALENTITYID]+RIGHT([DIMENSIONDISPLAYVALUE],LEN([DIMENSIONDISPLAYVALUE])-CHARINDEX('-',[DIMENSIONDISPLAYVALUE])+1)
+                FROM [dbo].[BudgetRegisterEntryStaging]
+            )T1
+            WHERE 
+                T1.[FinDim Code] = 'FCSB-D101--' 
+                OR T1.[FinDim Code] = 'FCSB-D102--' 
+                OR T1.[FinDim Code] = 'FCSB-D103--M001' 
+                OR T1.[FinDim Code] = 'FCSB-D103--M002' 
+                OR T1.[FinDim Code] = 'FCSB-D103--M003' 
+                OR T1.[FinDim Code] = 'FCSB-D103--M004' 
+                OR T1.[FinDim Code] = 'FCSB-D103--M005' 
+                OR T1.[FinDim Code] = 'FCSB-D103--M006' 
+                OR T1.[FinDim Code] = 'FCSB-D103--M007' 
+                OR T1.[FinDim Code] = 'FCSB-D103--M008' 
+                OR T1.[FinDim Code] = 'FCSB-D103--M009' 
+                OR T1.[FinDim Code] = 'FCSB-D103--M010' 
+                OR T1.[FinDim Code] = 'FCSB-D103--M011' 
+                OR T1.[FinDim Code] = 'FCSB-D103--P001' 
+                OR T1.[FinDim Code] = 'FCSB-D106--'
+            GROUP BY 
+                T1.[ACCOUNTDISPLAYVALUE], 
+                T1.[DATAAREAID],
+                T1.[FinDim Code]
+        )T2
+    )T3
+    GROUP BY 
+        T3.[DATAAREAID],
+        T3.[FinDim Code],
+        T3.[Department], 
+        T3.[Cost Center]
+)T4
+LEFT JOIN 
+(
+    SELECT 
+        [DESCRIPTION] AS [Department Description] , 
+        [DIMENSIONVALUE],
+        'Division Nature' = 
+            CASE WHEN LEFT([DIMENSIONVALUE],2) = 'D1' OR DIMENSIONVALUE = 'D000'
+            THEN 1 
+            ELSE 0 
+            END 
+    FROM [dbo].[FinancialDimensionValueEntityStaging]
+    WHERE [FINANCIALDIMENSION] = 'Department'
+) T5 
+ON T4.[Department] = T5.[DIMENSIONVALUE] 
+LEFT JOIN 
+(
+    SELECT 
+        [DESCRIPTION] AS 'Cost Center Description',
+        [DIMENSIONVALUE]
+    FROM [dbo].[FinancialDimensionValueEntityStaging]
+    WHERE 
+        [FINANCIALDIMENSION] = 'Retailchannel' 
+    OR  [FINANCIALDIMENSION] = 'CostCenter' 
+) T6 
+ON T4.[Cost Center] = T6.[DIMENSIONVALUE]
+WHERE [Division Nature] = 1
