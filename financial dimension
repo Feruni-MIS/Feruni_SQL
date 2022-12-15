@@ -1,6 +1,9 @@
-DELETE FROM [dbo].[_finance_dm_financialdimension]
-INSERT INTO [dbo].[_finance_dm_financialdimension]
+TRUNCATE FROM [dbo].[_finance_dm_financialdimension]
 
+INSERT INTO [dbo].[_finance_dm_financialdimension]
+VALUES('FCSB', 'FCSB', '', '', 'Empty', '', '')
+
+INSERT INTO [dbo].[_finance_dm_financialdimension]
 SELECT 
     T4.[DATAAREAID], 
     T4.[FinDim Code],
