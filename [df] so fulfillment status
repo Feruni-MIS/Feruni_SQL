@@ -1,0 +1,12 @@
+INSERT INTO [dbo].[SO Line Fulfillment Status]
+VALUES(0, 	'Unknown'),
+(1,	'Pending'),
+(2,	'2'),
+(3,	'Partially Picked'),
+(4,	'Picked'),
+(5,	'Partially Packed'),
+(6,	'Packed'),
+(7,	'Partially Invoiced'),
+(8,	'Invoiced'),
+(9,	'9'),
+(10,'Accepted')
