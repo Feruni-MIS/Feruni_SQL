@@ -1,4 +1,4 @@
-TRUNCATE TABLE [dbo].[_finance_dm_financialdimension]
+DELETE FROM [dbo].[_finance_dm_financialdimension]
 INSERT INTO [dbo].[_finance_dm_financialdimension]
 
 SELECT 
