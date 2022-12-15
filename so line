@@ -1,0 +1,307 @@
+TRUNCATE TABLE [dbo].[_salesorder_ft_soline]
+INSERT INTO[dbo].[_salesorder_ft_soline]
+
+SELECT DISTINCT 
+       T3.[DEFAULTLEDGERDIMENSIONDISPLAYVALUE],
+       T1.[MAINACCOUNTIDDISPLAYVALUE],
+       NULL                        AS TRANSFERSTATUS,
+       T1.[RETURNORDERNUMBER]      AS 'SALESORDERNUMBER',
+       T1.[RETURNINVENTORYLOTID]   AS 'INVENTORYLOTID',
+       NULL                        AS SALESORDERLINESTATUS,
+       NULL                        AS CUSTOMERSLINENUMBER,
+       NULL                        AS BOMID,
+       T1.[ITEMNUMBER],
+       NULL                        AS ROUTEID,
+       T1.[LINEAMOUNT],
+       NULL                        AS LINEDISCOUNTAMOUNT,
+       NULL                        AS LINEDISCOUNTPERCENTAGE,
+       NULL                        AS MULTILINEDISCOUNTAMOUNT,
+       NULL                        AS MULTILINEDISCOUNTPERCENTAGE,
+       T1.[LINEDESCRIPTION],
+       NULL                        AS SALESPRICEQUANTITY,
+       NULL                        AS CONFIRMEDRECEIPTDATE,
+       NULL                        AS REQUESTEDRECEIPTDATE,
+       T3.[COMMISSIONSALESREPRESENTATIVEGROUPID],
+       T1.[SALESPRICE],
+       NULL                        AS ORDEREDSALESQUANTITY,
+       NULL                        AS SALESUNITSYMBOL,
+       NULL                        AS CONFIRMEDSHIPPINGDATE,
+       NULL                        AS REQUESTEDSHIPPINGDATE,
+       T1.[PRODUCTCONFIGURATIONID],
+       T1.[ITEMBATCHNUMBER],
+       T1.[PRODUCTCOLORID],
+       T1.[PRODUCTSIZEID],
+       T1.[ORDEREDINVENTORYSTATUSID],
+       T1.[PRODUCTSTYLEID],
+       NULL                        AS LINECREATIONSEQUENCENUMBER,
+       NULL                        AS FULFILLMENTSTATUS,
+       NULL                        AS LINENUMBER,
+       NULL                        AS LOADID,
+       NULL                        AS SALESAGREEMENTID,
+       NULL                        AS MATCHINGAGREEMENTLINE,
+       NULL                        AS DELIVERYADDRESSNAME,
+       NULL                        AS DELIVERYMODECODE,
+       NULL                        AS FORMATTEDDELVERYADDRESS,
+       NULL                        AS DELIVERYADDRESSCITY,
+       NULL                        AS DELIVERYADDRESSLOCATIONID,
+       NULL                        AS DELIVERYADDRESSSTATEID,
+       NULL                        AS DELIVERYADDRESSSTREET,
+       NULL                        AS DELIVERYADDRESSZIPCODE,
+       NULL                        AS INVOICEDIMENSIONACCOUNTCODE,
+       T1.[DATAAREAID],
+       T1.[INVOICECUSTOMERACCOUNTNUMBER],
+       NULL                        AS QUOTATIONNUMBER,
+       T1.[ORDERCREATIONDATE] AS 'ORDERCREATIONDATETIME'   , 
+       --NULL                        AS ORDERCREATIONDATETIME,
+       -- Null                        as ORDERRESPONSIBLEPERSONNELNUMBER,
+       NULL                        AS PROJECTNAME,
+       NULL                        AS SALESTAKER,
+       NULL                        AS 'Project ID',
+       T1.[ORDERCREATIONDATE] AS 'OrderCreation Date',
+       NULL                        AS 'Order Responsible Personnel Number',
+       NULL                        AS 'Order Taker Personnel Number',
+       NULL                        AS 'FinDim Code',
+       'Product Helper' = Substring
+                          (       
+                            T1.[ITEMNUMBER]
+                                   + IIF( T1.[PRODUCTCOLORID] = NULL, '', T1.[PRODUCTCOLORID] )
+                                   + IIF( T1.[PRODUCTSTYLEID] = NULL, '', T1.[PRODUCTSTYLEID] )
+                                   + IIF( T1.[PRODUCTSIZEID] = NULL, '', T1.[PRODUCTSIZEID] )
+                                   + IIF( T1.[PRODUCTCONFIGURATIONID] = NULL, '', T1.[PRODUCTCONFIGURATIONID] ), 
+                                   1,
+                            200
+                            ),
+       T1.[RETURNORDERNUMBER] + ';' + T1.[RETURNINVENTORYLOTID] AS 'SO Line Helper',
+       T4.[SO, RO Line Status Description],
+       NULL                        AS 'Fulfilment Status Description',
+       'Return Order Line Table'   AS 'Table',
+       T1.[RMANUMBER],
+       T1.[RETURNSTATUS],
+       T1.[RETURNSITEID],
+       T2.[REPLACEMENTSALESORDERNUMBER],
+       T3.[ORDERTAKERPERSONNELNUMBER],
+       CAST(0 AS INT) AS 'Deliver Remainder',  ----ADDED BY KE TO USED IN PROJECT SALES FUNNEL REPORT FOR NET(WSL)
+       T3.[ORDERRESPONSIBLEPERSONNELNUMBER],---added by ke using for sales person dimension
+       T5.[CUSTOMERACCOUNT],--ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
+       T5.[ORGANIZATIONNAME],--ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
+       T5.[CUSTOMERGROUPID],--ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
+       T5.[REFERRAL],--ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
+       NULL                         AS 'SA Code',--added by yt
+       NULL                         AS 'SALESORDERNAME',--added by yt
+       NULL                         AS 'LOADSCHEDULEDSHIPDATE',   --added by yt
+       NULL                         AS 'CUSTOMERREQUISITIONNUMBER'   --added by yt
+FROM   ReturnOrderLineStaging
+AS T1
+LEFT JOIN
+(
+       SELECT 
+              [REPLACEMENTSALESORDERNUMBER],
+              [RMANUMBER]
+       FROM   [dbo].[ReturnOrderHeaderStaging]
+) T2
+ON T1.[RMANUMBER] = T2.[RMANUMBER]
+LEFT JOIN 
+(
+       SELECT 
+              [COMMISSIONSALESREPRESENTATIVEGROUPID],
+              [DEFAULTLEDGERDIMENSIONDISPLAYVALUE],
+              [ORDERTAKERPERSONNELNUMBER],
+              [ORDERRESPONSIBLEPERSONNELNUMBER],---added by ke using for sales person dimension
+              [SALESORDERNUMBER]
+       FROM   [dbo].[SalesOrderHeaderV2Staging]
+) T3
+ON T1.[RETURNORDERNUMBER] = T3.[SALESORDERNUMBER]
+LEFT JOIN 
+(
+       SELECT 
+              [Line Status],
+              [RO Line Status Description] AS 'SO, RO Line Status Description'
+       FROM   [dbo].[_salesorder_df_solinestatus]
+) T4
+ON T1.[RETURNSTATUS] = T4.[Line Status]
+LEFT JOIN 
+(
+  SELECT
+        [CUSTOMERACCOUNT]
+        ,[ORGANIZATIONNAME]
+        ,[CUSTOMERGROUPID]
+        ,[REFERRAL]
+    FROM [dbo].[CustCustomerV3Staging]
+) T5 
+ON T1.[INVOICECUSTOMERACCOUNTNUMBER] = T5.[CUSTOMERACCOUNT]
+WHERE  [LINEAMOUNT] <> 0 
+AND 
+DATAAREAID = 'FCSB'
+UNION ALL
+SELECT DISTINCT
+       T1.[DEFAULTLEDGERDIMENSIONDISPLAYVALUE],
+       T1.[MAINACCOUNTIDDISPLAYVALUE],
+       T1.[TRANSFERSTATUS],
+       T1.[SALESORDERNUMBER],
+       T1.[INVENTORYLOTID],
+       T1.[SALESORDERLINESTATUS],
+       T1.[CUSTOMERSLINENUMBER],
+       T1.[BOMID],
+       T1.[ITEMNUMBER],
+       T1.[ROUTEID],
+       T1.[LINEAMOUNT],
+       T1.[LINEDISCOUNTAMOUNT],
+       T1.[LINEDISCOUNTPERCENTAGE],
+       T1.[MULTILINEDISCOUNTAMOUNT],
+       T1.[MULTILINEDISCOUNTPERCENTAGE],
+       T1.[LINEDESCRIPTION],
+       T1.[SALESPRICEQUANTITY],
+       T1.[CONFIRMEDRECEIPTDATE],
+       T1.[REQUESTEDRECEIPTDATE],
+       T1.[COMMISSIONSALESREPRESENTATIVEGROUPID],--added for retail
+       T1.[SALESPRICE],
+       T1.[ORDEREDSALESQUANTITY],
+       T1.[SALESUNITSYMBOL],
+       T1.[CONFIRMEDSHIPPINGDATE],
+       T1.[REQUESTEDSHIPPINGDATE],
+       T1.[PRODUCTCONFIGURATIONID],
+       T1.[ITEMBATCHNUMBER],
+       T1.[PRODUCTCOLORID],
+       T1.[PRODUCTSIZEID],
+       T1.[ORDEREDINVENTORYSTATUSID],
+       T1.[PRODUCTSTYLEID],
+       T1.[LINECREATIONSEQUENCENUMBER],
+       T1.[FULFILLMENTSTATUS],
+       T1.[LINENUMBER],
+       T1.[LOADID],
+       T1.[SALESAGREEMENTID],
+       T1.[MATCHINGAGREEMENTLINE],
+       T1.[DELIVERYADDRESSNAME],
+       T1.[DELIVERYMODECODE],
+       T1.[FORMATTEDDELVERYADDRESS],
+       T1.[DELIVERYADDRESSCITY],
+       T1.[DELIVERYADDRESSLOCATIONID],      
+       T1.[DELIVERYADDRESSSTATEID],
+       T1.[DELIVERYADDRESSSTREET],
+       T1.[DELIVERYADDRESSZIPCODE],
+       T1.[EINVOICEDIMENSIONACCOUNTCODE],
+       T1.[DATAAREAID],
+       T2.[INVOICECUSTOMERACCOUNTNUMBER],
+       T2.[QUOTATIONNUMBER],
+       T2.[ORDERCREATIONDATETIME],
+       T2.[PROJECTNAME],
+       T2.[SALESTAKER],
+       T2.[Project ID] AS 'Project ID',
+       T2.[OrderCreation Date],
+       T3.[Order Responsible Personnel Number],
+       T4.[Order Taker Personnel Number],
+       T1.[DATAAREAID] + T1.[DEFAULTLEDGERDIMENSIONDISPLAYVALUE] AS 'FinDim Code',
+       'Product Helper' = Substring
+                          (
+                            T1.[ITEMNUMBER]
+                            + IIF( T1.[PRODUCTCOLORID] = NULL, '', T1.[PRODUCTCOLORID] )
+                            + IIF( T1.[PRODUCTSTYLEID] = NULL, '',T1.[PRODUCTSTYLEID] )
+                            + IIF( T1.[PRODUCTSIZEID] = NULL, '',T1.[PRODUCTSIZEID] )
+                            + IIF( T1.[PRODUCTCONFIGURATIONID] = NULL,'',T1.[PRODUCTCONFIGURATIONID] ), 
+                            1,
+                            200
+                          ),
+       T1.[SALESORDERNUMBER] + ';'+ T1.[INVENTORYLOTID] AS 'SO Line Helper',
+       T5.[SO, RO Line Status Description],
+       T6.[Fulfillment Status Description],
+       'SO Line Table'                           AS 'Table',
+       NULL                                      AS [RMANUMBER],
+       NULL                                      AS RETURNSTATUS,
+       NULL                                      AS RETURNSITEID,
+       NULL                                      AS REPLACEMENTSALESORDERNUMBER,
+       T2.[ORDERTAKERPERSONNELNUMBER],
+        'Deliver Remainder' =   CAST(    CASE WHEN T7.[Packing Slip InventQty] > 0 AND  T1.[SALESORDERLINESTATUS] = 1 ----ADDED BY KE TO USED IN PROJECT SALES FUNNEL REPORT FOR NET(WSL)
+                                    THEN T1.[ORDEREDSALESQUANTITY] - T7.[Packing Slip InventQty]
+                                    WHEN T1.[SALESORDERLINESTATUS] = 1
+                                    THEN T1.[ORDEREDSALESQUANTITY]
+                                    ELSE 0
+                                    END
+                                AS INT),
+       T2.[ORDERRESPONSIBLEPERSONNELNUMBER],---added by ke using for sales person dimension
+       T8.[CUSTOMERACCOUNT],--ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
+       T8.[ORGANIZATIONNAME],--ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
+       T8.[CUSTOMERGROUPID],--ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
+       T8.[REFERRAL],--ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
+       'SA Code' = CONCAT([SALESAGREEMENTID],':',[MATCHINGAGREEMENTLINE]),
+       T2.[SALESORDERNAME],
+       T1.[LOADSCHEDULEDSHIPDATE],
+       T1.[CUSTOMERREQUISITIONNUMBER]
+FROM   [dbo].[SalesOrderLineV2Staging] AS T1
+
+LEFT JOIN 
+(SELECT
+              [SALESORDERNUMBER],
+              [INVOICECUSTOMERACCOUNTNUMBER],
+              [QUOTATIONNUMBER],
+              [ORDERRESPONSIBLEPERSONNELNUMBER],
+              [ORDERTAKERPERSONNELNUMBER],
+              [ORDERCREATIONDATETIME],
+              [PROJECTNAME],
+              [PAX_PROJECTID],
+              [SALESTAKER],
+              [PROJECTID],
+              [SALESORDERNAME],
+              CONVERT(DATE, [ORDERCREATIONDATETIME]) AS
+              'OrderCreation Date',
+              CASE WHEN [PROJECTID]<>NULL THEN [PROJECTID] ELSE [PAX_PROJECTID] END "Project ID"
+
+       FROM   [dbo].[SalesOrderHeaderV2Staging]
+       WHERE [DATAAREAID]='FCSB'
+       )
+T2
+ON T1.[SALESORDERNUMBER] = T2.[SALESORDERNUMBER]
+LEFT JOIN 
+(
+       SELECT DISTINCT 
+              [PERSONNELNUMBER],
+              [NAME] AS 'Order Responsible Personnel Number'
+       FROM   [dbo].[HcmEmployeeV2Staging]
+) T3
+ON T2.[ORDERRESPONSIBLEPERSONNELNUMBER] = T3.[PERSONNELNUMBER]
+LEFT JOIN 
+(
+       SELECT DISTINCT 
+       [PERSONNELNUMBER],
+       [NAME] AS 'Order Taker Personnel Number'
+       FROM   [dbo].[HcmEmployeeV2Staging]
+) T4
+ON T2.[ORDERTAKERPERSONNELNUMBER] = T4.[PERSONNELNUMBER]
+LEFT JOIN 
+(
+       SELECT 
+              [Line Status],
+              [SO Line Status Description] AS 'SO, RO Line Status Description'
+       FROM   [dbo].[_salesorder_df_solinestatus]
+) T5
+ON T1.[SALESORDERLINESTATUS] = T5.[Line Status]
+LEFT JOIN 
+(
+       SELECT 
+              [Fulfillment Status],
+              [Fulfillment Status Description]
+       FROM   [dbo].[_salesorder_df_solinefulfillmentstatus]
+) T6
+ON T1.[FULFILLMENTSTATUS] = T6.[Fulfillment Status]
+LEFT JOIN 
+(
+       SELECT 
+              CAST([INVENTQTY] AS INT) as 'Packing Slip InventQty', 
+              [INVENTTRANSID]
+       FROM [dbo].[PaxCustPackingSlipsStaging]
+) T7
+ON T1.[INVENTORYLOTID] = T7.[INVENTTRANSID]
+LEFT JOIN 
+(
+  SELECT
+        [CUSTOMERACCOUNT]
+        ,[ORGANIZATIONNAME]
+        ,[CUSTOMERGROUPID]
+        ,[REFERRAL]
+    FROM [dbo].[CustCustomerV3Staging]
+) T8 
+ON T2.[INVOICECUSTOMERACCOUNTNUMBER]= T8.[CUSTOMERACCOUNT]
+WHERE LINEAMOUNT<>0
+AND [DATAAREAID]='FCSB'
+AND NOT(SALESORDERNAME like '%Reserved%')
+
+GO
