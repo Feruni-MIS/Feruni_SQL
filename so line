@@ -4,7 +4,6 @@ INSERT INTO [dbo].[_salesorder_ft_soline]
 SELECT DISTINCT 
        T3.[DEFAULTLEDGERDIMENSIONDISPLAYVALUE],
        T1.[MAINACCOUNTIDDISPLAYVALUE],
-       NULL                        AS TRANSFERSTATUS,
        T1.[RETURNORDERNUMBER]      AS 'SALESORDERNUMBER',
        T1.[RETURNINVENTORYLOTID]   AS 'INVENTORYLOTID',
        NULL                        AS SALESORDERLINESTATUS,
@@ -55,7 +54,6 @@ SELECT DISTINCT
        NULL                        AS PROJECTNAME,
        NULL                        AS SALESTAKER,
        NULL                        AS 'Project ID',
-       T1.[ORDERCREATIONDATE] AS 'OrderCreation Date',
        NULL                        AS 'Order Responsible Personnel Number',
        NULL                        AS 'Order Taker Personnel Number',
        NULL                        AS 'FinDim Code',
@@ -83,10 +81,11 @@ SELECT DISTINCT
        T5.[ORGANIZATIONNAME],                           ---ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
        T5.[CUSTOMERGROUPID],                            ---ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
        T5.[REFERRAL],                                   ---ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
-       NULL                         AS 'SA Code',                     ---ADDED BY YT
-       NULL                         AS 'SALESORDERNAME',              ---ADDED BY YT
-       NULL                         AS 'LOADSCHEDULEDSHIPDATE',       ---ADDED BY YT
-       NULL                         AS 'CUSTOMERREQUISITIONNUMBER'    ---ADDED BY YT
+       NULL                        AS 'SA Code',                     ---ADDED BY YT
+       NULL                        AS 'SALESORDERNAME',              ---ADDED BY YT
+       NULL                        AS 'LOADSCHEDULEDSHIPDATE',       ---ADDED BY YT
+       NULL                        AS 'CUSTOMERREQUISITIONNUMBER',   ---ADDED BY YT
+       NULL                        AS 'PAYMENTDATE'                  ---ADDED BY JC
 FROM   ReturnOrderLineStaging
 AS T1
 LEFT JOIN
@@ -131,7 +130,6 @@ UNION ALL
 SELECT DISTINCT
        T1.[DEFAULTLEDGERDIMENSIONDISPLAYVALUE],
        T1.[MAINACCOUNTIDDISPLAYVALUE],
-       T1.[TRANSFERSTATUS],
        T1.[SALESORDERNUMBER],
        T1.[INVENTORYLOTID],
        T1.[SALESORDERLINESTATUS],
@@ -182,7 +180,6 @@ SELECT DISTINCT
        T2.[PROJECTNAME],
        T2.[SALESTAKER],
        T2.[Project ID] AS 'Project ID',
-       T2.[OrderCreation Date],
        T3.[Order Responsible Personnel Number],
        T4.[Order Taker Personnel Number],
        T1.[DATAAREAID] + T1.[DEFAULTLEDGERDIMENSIONDISPLAYVALUE] AS 'FinDim Code',
@@ -213,7 +210,8 @@ SELECT DISTINCT
        'SA Code' = CONCAT([SALESAGREEMENTID],':',[MATCHINGAGREEMENTLINE]),
        T2.[SALESORDERNAME],
        T1.[LOADSCHEDULEDSHIPDATE],
-       T1.[CUSTOMERREQUISITIONNUMBER]
+       T1.[CUSTOMERREQUISITIONNUMBER],
+       T2.[PAYMENTDATE]
 FROM   [dbo].[SalesOrderLineV2Staging] AS T1
 LEFT JOIN 
 (SELECT
@@ -228,10 +226,8 @@ LEFT JOIN
               [SALESTAKER],
               [PROJECTID],
               [SALESORDERNAME],
-              CONVERT(DATE, [ORDERCREATIONDATETIME]) AS
-              'OrderCreation Date',
-              CASE WHEN [PROJECTID]<>NULL THEN [PROJECTID] ELSE [PAX_PROJECTID] END "Project ID"
-
+              [PAYMENTDATE],
+              CASE WHEN [PROJECTID] <> NULL THEN [PROJECTID] ELSE [PAX_PROJECTID] END "Project ID"
        FROM   [dbo].[SalesOrderHeaderV2Staging]
        WHERE [DATAAREAID]='FCSB'
        )
