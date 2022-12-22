@@ -1,0 +1,315 @@
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+---Created by:JC
+---Function: Invoice Line
+
+--done
+--CREATE VIEW [dbo].[SALES_INVOICELINE] AS 
+TRUNCATE TABLE [dbo].[_invoice_ft_invoiceline]
+INSERT INTO [dbo].[_invoice_ft_invoiceline]
+SELECT DISTINCT 
+"LINETOTALDISCOUNTAMOUNT",
+"LINETOTALTAXAMOUNT",
+"PRODUCTNAME",
+"INVOICEDQUANTITY",
+"SALESPRICE",
+"PRODUCTDESCRIPTION",
+"INVOICENUMBER",
+"INVOICEDATE",
+"CURRENCYCODE",
+"SALESUNITSYMBOL",
+"CONFIRMEDSHIPPINGDATE",
+"PRODUCTNUMBER",
+"LINECREATIONSEQUENCENUMBER",
+"LINETOTALCHARGEAMOUNT",
+"LINEAMOUNT",
+"INVENTORYSITEID",
+"INVENTORYWAREHOUSEID",
+"PRODUCTSIZEID",
+"PRODUCTCOLORID",
+"PRODUCTCONFIGURATIONID",
+"PRODUCTSTYLEID",
+"PRODUCTVERSIONID",
+"ITEMBATCHNUMBER",
+"ORDEREDINVENTORYSTATUSID",
+"LEDGERVOUCHER",
+"SALESPRODUCTCATEGORYNAME",
+"SALESPRODUCTCATEGORYHIERARCHYNAME",
+"DATAAREAID",
+"SYNCSTARTDATETIME",
+"RECID",
+"TOTALINVOICEAMOUNT",
+"INVOICECUSTOMERACCOUNTNUMBER",
+"ITEMNUMBER",
+"Product Helper",
+"SALESID",
+"INVENTTRANSID",
+"SO Line Helper",
+'FinDim Code',
+'Sales Order Responsible Personnel Name',
+"Project ID",
+"SALESORDERNAME",
+"Table",
+T8.[Cost]
+FROM (
+SELECT DISTINCT 
+       T1."LINETOTALDISCOUNTAMOUNT",
+       T1."LINETOTALTAXAMOUNT",
+       T1."PRODUCTNAME",
+       T1."INVOICEDQUANTITY",
+       T1."SALESPRICE",
+       T1."PRODUCTDESCRIPTION",
+       T1."INVOICENUMBER",
+       T1."INVOICEDATE",
+       T1."CURRENCYCODE",
+       T1."SALESUNITSYMBOL",
+       T1."CONFIRMEDSHIPPINGDATE",
+       T1."PRODUCTNUMBER",
+       T1."LINECREATIONSEQUENCENUMBER",
+       T1."LINETOTALCHARGEAMOUNT",
+       T1."LINEAMOUNT",
+       T1."INVENTORYSITEID",
+       T1."INVENTORYWAREHOUSEID",
+       T1."PRODUCTSIZEID",
+       T1."PRODUCTCOLORID",
+       T1."PRODUCTCONFIGURATIONID",
+       T1."PRODUCTSTYLEID",
+       T1."PRODUCTVERSIONID",
+       T1."ITEMBATCHNUMBER",
+       T1."ORDEREDINVENTORYSTATUSID",
+       T1."LEDGERVOUCHER",
+       T1."SALESPRODUCTCATEGORYNAME",
+       T1."SALESPRODUCTCATEGORYHIERARCHYNAME",
+       T1."DATAAREAID",
+       T1."SYNCSTARTDATETIME",
+       T1."RECID",
+       T2."TOTALINVOICEAMOUNT",
+       T2."INVOICECUSTOMERACCOUNTNUMBER",
+       T3."ITEMNUMBER",
+       'Product Helper' = Substring ---unque product info, used for linking product
+                          (
+                                 T3."ITEMNUMBER"
+                                    + IIF( T1.[PRODUCTCOLORID] = NULL, '',T1.[PRODUCTCOLORID] )
+                                    + IIF( T1.[PRODUCTSTYLEID] = NULL, '',T1.[PRODUCTSTYLEID] )
+                                    + IIF( T1.[PRODUCTSIZEID] = NULL, '', T1.[PRODUCTSIZEID] )
+                                    + IIF( T1.[PRODUCTCONFIGURATIONID] = NULL,'',T1.[PRODUCTCONFIGURATIONID] ),
+                                   1,
+                                   200
+                            ),
+       T4."SALESID",
+       T4."INVENTTRANSID",
+       T4."SO Line Helper",
+       T4."FinDim Code",
+       T5."NAME" AS "Sales Order Responsible Personnel Name",
+       T6.[Project ID],
+       T6.[SALESORDERNAME],
+       T6.[Table]
+       --T8.[Cost]
+       --T1."INVOICENUMBER" + T4."SO Line Helper" AS 'INVOICENUMBERMERGE' ---merge value of INVOICENUMBER and SO Line Helper
+       
+       --T6.[COMMISSIONSALESREPRESENTATIVEGROUPID],
+       
+      
+FROM   [dbo].[SalesInvoiceLineV3Staging] AS T1
+LEFT JOIN ---Expanded Invoice Header 
+(
+        SELECT  
+                "INVOICENUMBER" ,
+                "INVOICECUSTOMERACCOUNTNUMBER",
+                "SALESORDERRESPONSIBLEPERSONNELNUMBER",
+                "TOTALINVOICEAMOUNT",
+                "Invoice Date",
+                "SALESORDERNUMBER"----ADDED BY KE SINCE PAX NOT UPDATED USE THIS TEMPORARY FOR DEPARTMENT
+       FROM    ---select column from invoice header 
+       (
+              SELECT                 
+                     CAST("INVOICEHEADERTAXAMOUNT" AS INT) AS 'INVOICEHEADERTAXAMOUNT',---convert to int datatype
+                     "INVOICEADDRESSCOUNTRYREGIONISOCODE",
+                     CAST("TOTALDISCOUNTAMOUNT" AS INT) AS 'TOTALDISCOUNTAMOUNT',---convert to int datatype
+                     "DEFINITIONGROUP",
+                     "EXECUTIONID",
+                     "ISSELECTED",
+                     "TRANSFERSTATUS",
+                     "INVOICENUMBER"
+                     ,ROW_NUMBER() OVER (PARTITION BY "INVOICENUMBER" ORDER BY "INVOICENUMBER") AS RowNumber, ---Remove duplicate by INVOICENUMBER COLUMN
+                     "INVOICEDATE",
+                     "CONTACTPERSONID",
+                     "CUSTOMERSORDERREFERENCE",
+                     "DELIVERYMODECODE",
+                     "DELIVERYTERMSCODE",
+                     "PAYMENTTERMSNAME",
+                     "TOTALINVOICEAMOUNT",
+                     "CURRENCYCODE",
+                     CAST("TOTALTAXAMOUNT" AS INT) AS 'TOTALTAXAMOUNT',---convert to int datatype
+                     CAST("TOTALCHARGEAMOUNT" AS INT) AS 'TOTALCHARGEAMOUNT',---convert to int datatype
+                     CAST("TOTALDISCOUNTCUSTOMERGROUPCODE" AS INT) AS 'TOTALDISCOUNTCUSTOMERGROUPCODE',---convert to int datatype
+                     "INVOICECUSTOMERACCOUNTNUMBER",
+                     "SALESORDERNUMBER",
+                     "INVOICEADDRESSSTATE",
+                     "INVOICEADDRESSSTREET",
+                     "INVOICEADDRESSSTREETNUMBER",
+                     "INVOICEADDRESSZIPCODE",
+                     "INVOICEADDRESSCITY",
+                     "INVOICEADDRESSCOUNTRYREGIONID",
+                     "SALESORDERRESPONSIBLEPERSONNELNUMBER",
+                     "SALESORDERORIGINCODE",
+                     "LEDGERVOUCHER",
+                     "PARTITION",
+                     "DATAAREAID",
+                     "SYNCSTARTDATETIME",
+                     "RECID",
+                     CONVERT(DATE, "INVOICEDATE") AS 'Invoice Date' ---convert to date datatype
+              FROM   [dbo].[SalesInvoiceHeaderV2Staging]
+       ) AS 
+       a ---Remove duplicate
+       WHERE   a.RowNumber = 1  ---Remove duplicate
+        )
+        T2
+        ON T1.[INVOICENUMBER] = T2.[INVOICENUMBER]
+       LEFT JOIN ---Expanded All Realeased Product Master
+       (SELECT* FROM
+       [dbo].[_product_dm_allreleasedproductmaster]
+       WHERE [ITEMNUMBER]<>NULL
+        AND [ITEMNUMBER]<>'Gift Card')T3
+        ON T1.[PRODUCTNUMBER] = T3.[PRODUCTNUMBER]
+       LEFT JOIN ---Expanded Pax Cust Invoice 
+       (
+       SELECT 
+              "SALESID",
+              "INVENTTRANSID",
+              [SALESID] + ';' + [INVENTTRANSID] AS 'SO Line Helper', --Use to link SO line table and Invoice Line table (JC)
+              [DATAAREAID]+ [DEFAULTDIMENSIONDISPLAYVALUE]  AS 'FinDim Code', ---Use to link Financial Dimension Table (JC)
+              [RECID]
+       FROM   [dbo].[PaxCustInvoicesStaging]
+       ) T4
+       ON T1.[RECID] = T4.[RECID]
+       LEFT JOIN
+       (SELECT
+       [NAME],
+       [PERSONNELNUMBER]
+       FROM 
+       [HcmEmployeeV2Staging]
+       )T5
+       ON T2.[SALESORDERRESPONSIBLEPERSONNELNUMBER]=T5.[PERSONNELNUMBER] 
+       LEFT JOIN   
+       (
+       SELECT 
+      [Project ID]
+      ,[SO Line Helper]
+      ,[SALESORDERNAME]
+      ,[Table]
+  FROM [dbo].[_salesorder_ft_soline]
+)T6
+       ON T4.[SO Line Helper]=T6.[SO Line Helper] 
+       -- WHERE [ITEMNUMBER]<>NULL
+       -- AND [ITEMNUMBER]<>'Gift Card'
+UNION ALL --Appended Project Invoice Line
+SELECT 
+    [LINEDISC] AS 'LINETOTALDISCOUNTAMOUNT',
+    [TAXAMOUNT] AS 'LINETOTALTAXAMOUNT',
+    NULL AS 'PRODUCTNAME',
+    [QTY] AS 'INVOICEDQUANTITY',
+    'SALESPRICE' = [LINEAMOUNT] / [QTY],
+    NULL AS 'PRODUCTDESCRIPTION',
+    [PROJINVOICEID] AS 'INVOICENUMBER',
+    [INVOICEDATE],
+    [CURRENCYID] as 'CURRENCYCODE',
+    [SALESUNIT] AS 'SALESUNITSYMBOL',
+    NULL AS 'CONFIRMEDSHIPPINGDATE',
+    NULL AS'PRODUCTNUMBER',
+    NULL AS'LINECREATIONSEQUENCENUMBER',
+    NULL AS'LINETOTALCHARGEAMOUNT',
+    [LINEAMOUNT],
+    [SHIPPINGSITEID] AS 'INVENTORYSITEID',
+    [SHIPPINGWAREHOUSEID] AS 'INVENTORYWAREHOUSEID',
+    [PRODUCTSIZEID],
+    [PRODUCTCOLORID],
+    [PRODUCTCONFIGURATIONID],
+    [PRODUCTSTYLEID],
+       NULL AS'PRODUCTVERSIONID',
+    [ITEMBATCHNUMBER],
+       NULL AS'ORDEREDINVENTORYSTATUSID',
+    [LEDGERVOUCHER],
+       NULL AS'SALESPRODUCTCATEGORYNAME',
+       NULL AS'SALESPRODUCTCATEGORYHIERARCHYNAME',
+    [DATAAREAID],
+    [SYNCSTARTDATETIME],
+    [PROJINVOICEITEMRECID] AS 'RECID',
+    [INVOICEAMOUNT] AS 'TOTALINVOICEAMOUNT',
+    [INVOICEACCOUNT] AS 'INVOICECUSTOMERACCOUNTNUMBER',
+    [ITEMID] AS 'ITEMNUMBER',
+    'Product Helper' = Substring 
+                            (
+                                   [ITEMID]
+                                          + IIF( [PRODUCTCOLORID] = NULL, '',[PRODUCTCOLORID] )
+                                          + IIF( [PRODUCTSTYLEID] = NULL, '',[PRODUCTSTYLEID] )
+                                          + IIF( [PRODUCTSIZEID] = NULL, '', [PRODUCTSIZEID] )
+                                          + IIF( [PRODUCTCONFIGURATIONID] = NULL,'',[PRODUCTCONFIGURATIONID] ),
+                                          1,
+                                          200
+                                   ),
+    [SALESID],
+    [INVENTTRANSID],
+    'SO Line Helper' = [SALESID] + ';' + [INVENTTRANSID],
+    'FinDim Code' = [DATAAREAID] + [DEFAULTDIMENSIONDISPLAYVALUE],
+    NULL AS "Sales Order Responsible Personnel Name",
+    [PROJID] AS 'Project ID',
+    NULL AS 'SALESORDERNAME',
+    'Table' = 'Project Invoicing Table'
+       FROM
+       (
+       SELECT
+       [CURRENCYID]
+       ,[DATAAREAID]
+       ,[INVENTTRANSID]
+       ,[INVOICEDATE]
+       ,[ITEMID]
+       ,[LINEAMOUNT]
+       ,[LINEDISC]
+       ,[PROJID]
+       ,a.[PROJINVOICEID]
+       ,[PROJINVOICEITEMRECID]
+       ,[QTY]
+       ,[SALESID]
+       ,[SALESUNIT]
+       ,[TAXAMOUNT]
+       ,[TXT]
+       ,[ITEMBATCHNUMBER]
+       ,[PRODUCTCOLORID]
+       ,[PRODUCTSIZEID]
+       ,[PRODUCTCONFIGURATIONID]
+       ,[SHIPPINGSITEID]
+       ,[SHIPPINGWAREHOUSEID]
+       ,[PRODUCTSTYLEID]
+       ,[DEFAULTDIMENSIONDISPLAYVALUE]
+       ,[SYNCSTARTDATETIME]
+       ,b.[INVOICEAMOUNT]
+       ,b.INVOICEACCOUNT
+       ,b.LEDGERVOUCHER
+       FROM [dbo].[IDSProjInvoiceItemStaging] AS a
+       LEFT JOIN
+       (
+       SELECT
+              [PROJINVOICEID],
+              [INVOICEACCOUNT],
+              [INVOICEAMOUNT],
+              [LEDGERVOUCHER]
+              FROM [dbo].[IDSProjInvoiceJourStaging]
+       ) b
+       ON a.[PROJINVOICEID]=b.[PROJINVOICEID]
+       )T1
+)X
+
+LEFT JOIN ---Expanded Inventory Transaction
+        (SELECT 
+                [LotId] AS 'Lot ID',
+                Cost = SUM(CASE WHEN [CostAmountFinancial] = 0 ----if else statement 
+                                    THEN [CostAmountPhysical] + [CostAmountAdjustment]
+                                    ELSE [CostAmountFinancial] + [CostAmountAdjustment]
+                                    END)
+            FROM [dbo].[_transaction_ft_inventorytransaction]
+            GROUP BY [LotId])
+       AS T8
+       ON X.[INVENTTRANSID]= T8.[Lot Id]
