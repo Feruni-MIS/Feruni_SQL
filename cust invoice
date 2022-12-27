@@ -1,0 +1,9 @@
+TRUNCATE TABLE [dbo].[_invoice_ft_custinvoice]
+INSERT INTO [dbo].[_invoice_ft_custinvoice]
+
+SELECT 
+    [SALESID]
+    , [INVENTTRANSID]
+    , CONCAT([SALESID], ';', [INVENTTRANSID]) AS "SO Line Helper"
+    , CONCAT([DATAAREAID], [DEFAULTDIMENSIONDISPLAYVALUE]) AS "FinDim Code"
+  FROM [dbo].[PaxCustInvoicesStaging]
