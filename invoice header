@@ -1,3 +1,6 @@
+TRUNCATE TABLE [dbo].[_invoice_dm_invoiceheader]
+INSERT INTO[dbo].[_invoice_dm_invoiceheader]
+
 SELECT
 	[INVOICEHEADERTAXAMOUNT] 
 	, [INVOICEADDRESSCOUNTRYREGIONISOCODE] 
