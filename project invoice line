@@ -1,3 +1,5 @@
+TRUNCATE TABLE [dbo].[_invoice_ft_projinvoiceline]
+INSERT INTO[dbo].[_invoice_ft_projinvoiceline]
 
 SELECT 
   T1.[CURRENCYID] AS "CURRENCYCODE",
