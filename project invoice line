@@ -41,7 +41,10 @@ SELECT
                         ), 
   T1.[SALESID] + ';' + T1.[INVENTTRANSID] AS "SO Line Helper", 
   T1.[DATAAREAID] + T1.[DEFAULTDIMENSIONDISPLAYVALUE] AS "FinDim Code",
-  T1.[LINEAMOUNT] / T1.[QTY] AS "SALESPRICE"
+  T1.[LINEAMOUNT] / T1.[QTY] AS "SALESPRICE",
+  T3.[COMMISSIONSALESREPRESENTATIVEGROUPID]
   FROM [dbo].[IDSProjInvoiceItemStaging] T1
   LEFT JOIN [dbo].[IDSProjInvoiceJourStaging] T2
   on T1.[PROJINVOICEID] = T2.[PROJINVOICEID]
+  LEFT JOIN [dbo].[_salesorder_ft_soline] T3
+  on "SO Line Helper" = T3.[SO Line Helper]
