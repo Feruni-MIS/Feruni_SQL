@@ -1,6 +1,8 @@
 // Order Management 
 // Invoice line
 
+TRUNCATE TABLE [dbo].[_invoicecost_ft_inventorytransaction]
+INSERT INTO[dbo].[_invoicecost_ft_inventorytransaction]
 
 SELECT 
 	T1.[INVENTTRANSID] AS "Lot ID"
