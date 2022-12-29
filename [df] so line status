@@ -1,7 +1,7 @@
 INSERT INTO [dbo].[_salesorder_df_solinestatus]
-VALUES(1, 'Open Order', 'Created'),
-(2, 'Delivered', ''),
-(3, 'Invoiced', ''),	
-(4, 'Cancelled', 'Open Order'),
-(5, '', 'Invoiced'),
-(6, '', 'Cancelled')
+VALUES(1, 'Open Order', 'Awaiting', 'Open Order'),
+(2, 'Delivered', 'Registered', ''),
+(3, 'Invoiced', '', 'Invoiced'),	
+(4, 'Cancelled', 'Open Order', 'Cancelled'),
+(5, '', 'Invoiced', ''),
+(6, '', 'Cancelled', '')
