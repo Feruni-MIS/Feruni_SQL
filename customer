@@ -1,3 +1,6 @@
+TRUNCATE TABLE [dbo].[_customer_dm_customer]
+INSERT INTO [dbo].[_customer_dm_customer]
+
 SELECT
     T1.[CUSTOMERACCOUNT]
     ,T1.[ORGANIZATIONNAME]
