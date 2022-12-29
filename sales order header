@@ -1,12 +1,12 @@
+TRUNCATE TABLE [dbo].[_salesorder_dm_salesorderheader]
+INSERT INTO [dbo].[_salesorder_dm_salesorderheader]
+
 SELECT 
     T3.[SALESORDERNUMBER]
     ,T3.[SALESORDERSTATUS]
     ,T3.[ORDERTAKERPERSONNELNUMBER]
     ,T3.[DEFAULTLEDGERDIMENSIONDISPLAYVALUE]
-    ,T3.[PROJECTID]
-    ,T3.[PROJECTID_]
     ,T3.[PAYMENTDATE]
-    ,T3.[PAX_PROJECTID]
     ,T3.[FinDim Code]
     ,T3.[Project ID]
     ,T3.[Table] 
@@ -38,7 +38,7 @@ SELECT
     FROM [dbo].[SalesOrderHeaderV2Staging] T1
     LEFT JOIN [dbo].[_salesorder_df_solinestatus] T2
     on T1.[SALESORDERSTATUS] = T2.[Line Status]
-    WHERE [DATAAREAID] <> 'FCSB'
+    WHERE T1.[DATAAREAID] = 'FCSB'
     UNION ALL
     SELECT
         [SALESORDERNUMBER]
