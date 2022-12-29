@@ -1,0 +1,59 @@
+SELECT 
+    T3.[SALESORDERNUMBER]
+    ,T3.[SALESORDERSTATUS]
+    ,T3.[ORDERTAKERPERSONNELNUMBER]
+    ,T3.[DEFAULTLEDGERDIMENSIONDISPLAYVALUE]
+    ,T3.[PROJECTID]
+    ,T3.[PROJECTID_]
+    ,T3.[PAYMENTDATE]
+    ,T3.[PAX_PROJECTID]
+    ,T3.[FinDim Code]
+    ,T3.[Project ID]
+    ,T3.[Table] 
+    ,T3.[SO, RO Line Status Description]
+    ,T4.[Department]
+    ,T4.[Department Description]
+    ,T4.[Cost Center]
+    ,T4.[Cost Center Description]
+    FROM 
+    (
+    SELECT 
+        T1.[SALESORDERNUMBER]
+        ,T1.[SALESORDERSTATUS]
+        ,T1.[ORDERTAKERPERSONNELNUMBER]
+        ,T1.[DEFAULTLEDGERDIMENSIONDISPLAYVALUE]
+        ,T1.[PROJECTID]
+        ,T1.[PROJECTID_]
+        ,T1.[PAYMENTDATE]
+        ,T1.[PAX_PROJECTID]
+        ,CONCAT([DATAAREAID], [DEFAULTLEDGERDIMENSIONDISPLAYVALUE]) AS "FinDim Code"
+        ,(
+            CASE
+            WHEN [PROJECTID] <> null AND [PROJECTID] <> '' THEN [PROJECTID]
+            ELSE [PAX_PROJECTID]
+            END
+            ) AS "Project ID"
+        , "Table" = 'Sales Order Header' 
+        ,T2.[SO Line Status Description] AS "SO, RO Line Status Description"
+    FROM [dbo].[SalesOrderHeaderV2Staging] T1
+    LEFT JOIN [dbo].[_salesorder_df_solinestatus] T2
+    on T1.[SALESORDERSTATUS] = T2.[Line Status]
+    WHERE [DATAAREAID] <> 'FCSB'
+    UNION ALL
+    SELECT
+        [SALESORDERNUMBER]
+        ,NULL AS "SALESORDERSTATUS"
+        ,NULL AS "ORDERTAKERPERSONNELNUMBER"
+        ,NULL AS "DEFAULTLEDGERDIMENSIONDISPLAYVALUE"
+        ,NULL AS "PROJECTID"
+        ,NULL AS "PROJECTID_"
+        ,NULL AS "PAYMENTDATE"
+        ,NULL AS "PAX_PROJECTID"
+        ,NULL AS "FinDim Code"
+        ,NULL AS "Project ID"
+        ,[Table]
+        ,[SO, RO Line Status Description]
+        FROM [dbo].[_returnorder_dm_returnorderheader] 
+    ) T3
+    LEFT JOIN [dbo].[_finance_dm_financialdimension] T4
+    on T3.[FinDim Code] = T4.[FinDim Code]
