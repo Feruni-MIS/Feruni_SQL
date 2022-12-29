@@ -1,3 +1,6 @@
+TRUNCATE TABLE [dbo].[_returnorder_dm_returnorderheader]
+INSERT INTO [dbo].[_returnorder_dm_returnorderheader]
+
 SELECT
     T1.[RETURNORDERNUMBER] AS "SALESORDERNUMBER" 
     ,T1.[ORDERCREATIONDATE] AS "ORDERCREATIONDATETIME"
