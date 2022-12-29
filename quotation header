@@ -1,3 +1,6 @@
+TRUNCATE TABLE [dbo].[_quotation_dm_quotationheader]
+INSERT INTO [dbo].[_quotation_dm_quotationheader]
+
 SELECT 
       T1.[SALESQUOTATIONNUMBER]
       ,T1.[SALESQUOTATIONSTATUS]
@@ -18,7 +21,7 @@ SELECT
       ,T1.[TOTALDISCOUNTAMOUNT]
       ,T1.[CREATEDDATETIME1]
       ,T1.[DATAAREAID]
-      , CONCAT([DATAAREAID], [DEFAULTLEDGERDIMENSIONDISPLAYVALUE]) AS "FinDim Code"
+      ,CONCAT([DATAAREAID], [DEFAULTLEDGERDIMENSIONDISPLAYVALUE]) AS "FinDim Code"
       ,T2.[NAME] AS "Quotation Responsible Personnel Number"
   FROM [dbo].[SalesQuotationHeaderV2Staging] T1
   LEFT JOIN [dbo].[_humanresources_dm_employee] T2
