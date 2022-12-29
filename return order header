@@ -1,0 +1,8 @@
+SELECT
+    T1.[RETURNORDERNUMBER] AS "SALESORDERNUMBER" 
+    ,T1.[ORDERCREATIONDATE] AS "ORDERCREATIONDATETIME"
+    ,T2.[RO Header Status Description]
+    ,"Table" = 'Return Order Header'
+    FROM [dbo].[ReturnOrderHeaderStaging] T1
+    LEFT JOIN [dbo].[_salesorder_df_solinestatus] T2
+    on T1.[RETURNORDERSTATUS] = T2.[Line Status]
