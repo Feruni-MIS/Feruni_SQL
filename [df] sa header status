@@ -1,0 +1,4 @@
+INSERT INTO [dbo].[_salesagreement_df_saheaderstatus]
+VALUES (0, 'On hold'),
+(1, 'Effective'),
+(2, 'Closed')
