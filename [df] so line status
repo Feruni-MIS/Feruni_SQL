@@ -1,4 +1,4 @@
-INSERT INTO [dbo].[SO Line Status]
+INSERT INTO [dbo].[_salesorder_df_solinestatus]
 VALUES(1, 'Open Order', 'Created'),
 (2, 'Delivered', ''),
 (3, 'Invoiced', ''),	
