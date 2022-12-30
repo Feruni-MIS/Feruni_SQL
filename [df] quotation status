@@ -1,0 +1,6 @@
+INSERT INTO [dbo].[_quotation_df_quotationstatus]
+VALUES(0, 'Created'),
+(1, 'Sent'),
+(2, 'Confirmed'),	
+(3, 'Lost'),
+(4, 'Cancelled')
