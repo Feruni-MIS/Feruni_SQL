@@ -1,0 +1,61 @@
+TRUNCATE TABLE [dbo].[_salesagreement_ft_saline]
+INSERT INTO [dbo].[_salesagreement_ft_saline]
+
+SELECT
+      T1.[SALESAGREEMENTID]
+      ,T1.[SALESAGREEMENTLEGALENTITYID]
+      ,T1.[LINENUMBER]
+      ,T1.[ITEMNUMBER]
+      ,T1.[PRODUCTSIZEID]
+      ,T1.[PRODUCTCOLORID]
+      ,T1.[PRODUCTCONFIGURATIONID]
+      ,T1.[PRODUCTSTYLEID]
+      ,T1.[SHIPPINGSITEID]
+      ,T1.[SHIPPINGWAREHOUSEID]
+      ,T1.[COMMITTEDQUANTITY]
+      ,T1.[UNITSYMBOL]
+      ,T1.[COMMITTEDAMOUNT]
+      ,T1.[PRICE]
+      ,T1.[PRICEQUANTITY]
+      ,T1.[EFFECTIVEDATE]
+      ,T1.[EXPIRATIONDATE]
+      ,T1.[ISCOMMITMENTMAXIMUMENFORCED]
+      ,T1.[DEFAULTLEDGERDIMENSIONDISPLAYVALUE]
+      ,T1.[PROJECTID]
+      ,T1.[PROJECTACTIVITYNUMBER]
+      ,T1.[PROJECTCATEGORYID]
+      ,T1.[COMMISSIONSALESREPRESENTATIVEGROUPID]
+      ,T1.[DELIVERYMODECODE]
+      ,T1.[AGREEMENTCUSTOMERACCOUNTNUMBER]
+      ,T1.[INVOICECUSTOMERACCOUNTNUMBER]
+      ,T1.[DATAAREAID]
+      ,T1.[SYNCSTARTDATETIME]
+      ,T1.[RECID]
+      ,"Product Helper" = Substring 
+                          (
+                            T1.[ITEMNUMBER]
+                            + IIF( T1.[PRODUCTCOLORID] = NULL, '',T1.[PRODUCTCOLORID] )
+                            + IIF( T1.[PRODUCTSTYLEID] = NULL, '',T1.[PRODUCTSTYLEID] )
+                            + IIF( T1.[PRODUCTSIZEID] = NULL, '', T1.[PRODUCTSIZEID] )
+                            + IIF( T1.[PRODUCTCONFIGURATIONID] = NULL,'',T1.[PRODUCTCONFIGURATIONID] ),
+                            1,
+                            200
+                            )
+      ,CONCAT(T1.[SALESAGREEMENTID], ':', T1.[RECID]) AS "SA Code"
+      ,CONCAT(T1.[DATAAREAID], T1.[DEFAULTLEDGERDIMENSIONDISPLAYVALUE]) AS "FinDim Code"
+      ,T5.[SA Status Description]
+      ,T5.[PREPARERPERSONPARTYNAME]
+    FROM [dbo].[SalesAgreementLineStaging] T1
+    LEFT JOIN 
+    (
+        SELECT 
+            T2.[SALESAGREEMENTID]
+            ,T3.[SA Status Description]
+            ,T4.[NAME] AS "PREPARERPERSONPARTYNAME"
+        FROM [dbo].[SalesAgreementHeaderStaging] T2
+        LEFT JOIN [dbo].[_salesagreement_df_saheaderstatus] T3
+        on T2.[AGREEMENTSTATUS] = T3.[Agreement Status]
+        LEFT JOIN [dbo].[_humanresources_dm_employee] T4
+        on T2.[PREPARERPERSONPARTYNUMBER] = T4.[PARTYNUMBER]
+    ) T5
+    on T1.[SALESAGREEMENTID] = T5.[SALESAGREEMENTID]
