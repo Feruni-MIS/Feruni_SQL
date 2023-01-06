@@ -12,6 +12,7 @@ SELECT
         END
     ) AS "ADDRESSLOCATIONID"
     ,T1.[PRIMARYCONTACTPHONE]
+    ,T1.[PARTNERTXT]
     ,CONCAT(T1.[DATAAREAID], T1.[DEFAULTDIMENSIONDISPLAYVALUE]) AS "FinDim Code"
     ,T2.[Department Description]
     FROM [dbo].[CustCustomerV3Staging] T1
