@@ -8,146 +8,105 @@ GO
 TRUNCATE TABLE [dbo].[_invoice_ft_invoiceline]
 INSERT INTO [dbo].[_invoice_ft_invoiceline]
 
-SELECT DISTINCT 
-T8.[LINETOTALDISCOUNTAMOUNT],
-T8.[LINETOTALTAXAMOUNT],
-T8.[PRODUCTNAME],
-T8.[INVOICEDQUANTITY],
-T8.[SALESPRICE],
-T8.[PRODUCTDESCRIPTION],
-T8.[INVOICENUMBER],
-T8.[INVOICEDATE],
-T8.[CURRENCYCODE],
-T8.[SALESUNITSYMBOL],
-T8.[CONFIRMEDSHIPPINGDATE],
-T8.[PRODUCTNUMBER],
-T8.[LINECREATIONSEQUENCENUMBER],
-T8.[LINETOTALCHARGEAMOUNT],
-T8.[LINEAMOUNT],
-T8.[INVENTORYSITEID],
-T8.[INVENTORYWAREHOUSEID],
-T8.[PRODUCTSIZEID],
-T8.[PRODUCTCOLORID],
-T8.[PRODUCTCONFIGURATIONID],
-T8.[PRODUCTSTYLEID],
-T8.[PRODUCTVERSIONID],
-T8.[ITEMBATCHNUMBER],
-T8.[ORDEREDINVENTORYSTATUSID],
-T8.[LEDGERVOUCHER],
-T8.[SALESPRODUCTCATEGORYNAME],
-T8.[SALESPRODUCTCATEGORYHIERARCHYNAME],
-T8.[DATAAREAID],
-T8.[SYNCSTARTDATETIME],
-T8.[RECID],
-T8.[TOTALINVOICEAMOUNT],
-T8.[INVOICECUSTOMERACCOUNTNUMBER],
-T8.[ITEMNUMBER],
-T8.[Product Helper],
-T8.[SALESID],
-T8.[INVENTTRANSID],
-T8.[SO Line Helper],
-T8.[FinDim Code],
-T8.[Sales Order Responsible Personnel Name],
-T8.[Project ID],
-T8.[SALESORDERNAME],
-T8.[Table],
-T9.[Cost]
-FROM 
-(
 SELECT DISTINCT
-       T1.[LINETOTALDISCOUNTAMOUNT],
-       T1.[LINETOTALTAXAMOUNT],
-       T1.[PRODUCTNAME],
-       T1.[INVOICEDQUANTITY],
-       T1.[SALESPRICE],
-       T1.[PRODUCTDESCRIPTION],
-       T1.[INVOICENUMBER],
-       T1.[INVOICEDATE],
-       T1.[CURRENCYCODE],
-       T1.[SALESUNITSYMBOL],
-       T1.[CONFIRMEDSHIPPINGDATE],
-       T1.[PRODUCTNUMBER],
-       T1.[LINECREATIONSEQUENCENUMBER],
-       T1.[LINETOTALCHARGEAMOUNT],
-       T1.[LINEAMOUNT],
-       T1.[INVENTORYSITEID],
-       T1.[INVENTORYWAREHOUSEID],
-       T1.[PRODUCTSIZEID],
-       T1.[PRODUCTCOLORID],
-       T1.[PRODUCTCONFIGURATIONID],
-       T1.[PRODUCTSTYLEID],
-       T1.[PRODUCTVERSIONID],
-       T1.[ITEMBATCHNUMBER],
-       T1.[ORDEREDINVENTORYSTATUSID],
-       T1.[LEDGERVOUCHER],
-       T1.[SALESPRODUCTCATEGORYNAME],
-       T1.[SALESPRODUCTCATEGORYHIERARCHYNAME],
-       T1.[DATAAREAID],
-       T1.[SYNCSTARTDATETIME],
-       T1.[RECID],
-       T2.[TOTALINVOICEAMOUNT],
-       T2.[INVOICECUSTOMERACCOUNTNUMBER],
-       T3.[ITEMNUMBER],
-       'Product Helper' = Substring 
-                          (
-                            T3."ITEMNUMBER"
-                            + IIF( T1.[PRODUCTCOLORID] = NULL, '',T1.[PRODUCTCOLORID] )
-                            + IIF( T1.[PRODUCTSTYLEID] = NULL, '',T1.[PRODUCTSTYLEID] )
-                            + IIF( T1.[PRODUCTSIZEID] = NULL, '', T1.[PRODUCTSIZEID] )
-                            + IIF( T1.[PRODUCTCONFIGURATIONID] = NULL,'',T1.[PRODUCTCONFIGURATIONID] ),
-                            1,
-                            200
+        T1.[LINETOTALDISCOUNTAMOUNT],
+        T1.[LINETOTALTAXAMOUNT],
+        T1.[PRODUCTNAME],
+        T1.[INVOICEDQUANTITY],
+        T1.[SALESPRICE],
+        T1.[PRODUCTDESCRIPTION],
+        T1.[INVOICENUMBER],
+        T1.[INVOICEDATE],
+        T1.[CURRENCYCODE],
+        T1.[SALESUNITSYMBOL],
+        T1.[CONFIRMEDSHIPPINGDATE],
+        T1.[PRODUCTNUMBER],
+        T1.[LINECREATIONSEQUENCENUMBER],
+        T1.[LINETOTALCHARGEAMOUNT],
+        T1.[LINEAMOUNT],
+        T1.[INVENTORYSITEID],
+        T1.[INVENTORYWAREHOUSEID],
+        T1.[PRODUCTSIZEID],
+        T1.[PRODUCTCOLORID],
+        T1.[PRODUCTCONFIGURATIONID],
+        T1.[PRODUCTSTYLEID],
+        T1.[PRODUCTVERSIONID],
+        T1.[ITEMBATCHNUMBER],
+        T1.[ORDEREDINVENTORYSTATUSID],
+        T1.[LEDGERVOUCHER],
+        T1.[SALESPRODUCTCATEGORYNAME],
+        T1.[SALESPRODUCTCATEGORYHIERARCHYNAME],
+        T1.[DATAAREAID],
+        T1.[SYNCSTARTDATETIME],
+        T1.[RECID],
+        T2.[TOTALINVOICEAMOUNT],
+        T2.[INVOICECUSTOMERACCOUNTNUMBER],
+        T3.[ITEMNUMBER],
+        'Product Helper' = Substring 
+                           (
+                             T3."ITEMNUMBER"
+                             + IIF( T1.[PRODUCTCOLORID] = NULL, '',T1.[PRODUCTCOLORID] )
+                             + IIF( T1.[PRODUCTSTYLEID] = NULL, '',T1.[PRODUCTSTYLEID] )
+                             + IIF( T1.[PRODUCTSIZEID] = NULL, '', T1.[PRODUCTSIZEID] )
+                             + IIF( T1.[PRODUCTCONFIGURATIONID] = NULL,'',T1.[PRODUCTCONFIGURATIONID] ),
+                             1,
+                             200
                             ),
-       T4.[SALESID],
-       T4.[INVENTTRANSID],
-       T4.[SO Line Helper],
-       T4.[FinDim Code],
-       T5."NAME" AS "Sales Order Responsible Personnel Name",
-       T6.[Project ID],
-       T6.[SALESORDERNAME],
-       T6.[COMMISSIONSALESREPRESENTATIVEGROUPID], 
-       "Table" = 'Invoice Line'
-        FROM   [dbo].[SalesInvoiceLineV3Staging] AS T1
+        T4.[SALESID],
+        T4.[INVENTTRANSID],
+        T4.[SO Line Helper],
+        T4.[FinDim Code],
+        T5.[NAME] AS "Sales Order Responsible Personnel Name",
+        T6.[Project ID],
+        T6.[SALESORDERNAME],
+        T6.[COMMISSIONSALESREPRESENTATIVEGROUPID], 
+        REPLACE(T6.[Table], null, 'Invoice Line') AS "Table"
+        FROM   [dbo].[SalesInvoiceLineV3Staging] T1
         LEFT JOIN                       ---Expanded Invoice Header 
         (   
         SELECT  
-            "INVOICENUMBER"
-            , "TOTALINVOICEAMOUNT"
-            , "INVOICECUSTOMERACCOUNTNUMBER"
-            , "SALESORDERRESPONSIBLEPERSONNELNUMBER"
-       FROM [dbo].[_invoice_dm_invoiceheader]
-       ) T2
-       ON T1.[INVOICENUMBER] = T2.[INVOICENUMBER]
-       LEFT JOIN                        ---Expanded All Realeased Product Master
-       (
+            [INVOICENUMBER]
+            , [TOTALINVOICEAMOUNT]
+            , [INVOICECUSTOMERACCOUNTNUMBER]
+            , [SALESORDERRESPONSIBLEPERSONNELNUMBER]
+        FROM [dbo].[_invoice_dm_invoiceheader]
+        ) T2
+        ON T1.[INVOICENUMBER] = T2.[INVOICENUMBER]
+        LEFT JOIN                        ---Expanded All Realeased Product Master
+        (
            SELECT
-                * 
+                [ITEMNUMBER]
+                ,[PRODUCTNUMBER]
                 FROM [dbo].[_product_dm_allreleasedproductmaster]
         ) T3
         ON T1.[PRODUCTNUMBER] = T3.[PRODUCTNUMBER]
-       LEFT JOIN                        ---Expanded Pax Cust Invoice 
-       (
+        LEFT JOIN                        ---Expanded Pax Cust Invoice 
+        (
             SELECT 
-              *
+                [SALESID]
+                ,[INVENTTRANSID]
+                ,[SO Line Helper]
+                ,[FinDim Code]
+                ,[RECID]
               FROM [dbo].[_invoice_ft_custinvoice]
-       ) T4                             
-       ON T1.[RECID] = T4.[RECID]
-       LEFT JOIN                        ---Expanded Employee
-       (
+        ) T4                             
+        ON T1.[RECID] = T4.[RECID]
+        LEFT JOIN                        ---Expanded Employee
+        (
         SELECT
             [NAME]
-            , [PERSONNELNUMBER]
+            ,[PERSONNELNUMBER]
             FROM [dbo].[_humanresources_dm_employee]
-       ) T5
-       ON T2.[SALESORDERRESPONSIBLEPERSONNELNUMBER] = T5.[PERSONNELNUMBER] 
-       LEFT JOIN                        ---Expanded SO Line
-       (
+        ) T5
+        ON T2.[SALESORDERRESPONSIBLEPERSONNELNUMBER] = T5.[PERSONNELNUMBER] 
+        LEFT JOIN                        ---Expanded SO Line
+        (
         SELECT 
             [SO Line Helper]
-            , [Project ID]
-            , [SALESORDERNAME]
-            , [Table]
-            , [COMMISSIONSALESREPRESENTATIVEGROUPID]
+            ,[Project ID]
+            ,[SALESORDERNAME]
+            ,[Table]
+            ,[COMMISSIONSALESREPRESENTATIVEGROUPID]
             FROM [dbo].[_salesorder_ft_soline]
         ) T6
         ON T4.[SO Line Helper] = T6.[SO Line Helper]
@@ -197,12 +156,3 @@ UNION ALL                               ---Appended Project Invoice Line
     COMMISSIONSALESREPRESENTATIVEGROUPID, 
     [Table]
     FROM [dbo].[_invoice_ft_projinvoiceline] T7
-) T8
-    LEFT JOIN ---Expanded Inventory Transaction
-    (
-        SELECT 
-            [Lot Id]
-            , [Cost]
-            FROM [dbo].[_invoicecost_ft_inventorytransaction] 
-    ) T9
-    ON T8.[INVENTTRANSID] = T9.[Lot Id]
