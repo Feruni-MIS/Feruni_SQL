@@ -1,6 +1,52 @@
 TRUNCATE TABLE [dbo].[_invoice_ft_invoiceline]
 INSERT INTO [dbo].[_invoice_ft_invoiceline]
 
+SELECT DISTINCT 
+T8.[LINETOTALDISCOUNTAMOUNT],
+T8.[LINETOTALTAXAMOUNT],
+T8.[PRODUCTNAME],
+T8.[INVOICEDQUANTITY],
+T8.[SALESPRICE],
+T8.[PRODUCTDESCRIPTION],
+T8.[INVOICENUMBER],
+T8.[INVOICEDATE],
+T8.[CURRENCYCODE],
+T8.[SALESUNITSYMBOL],
+T8.[CONFIRMEDSHIPPINGDATE],
+T8.[PRODUCTNUMBER],
+T8.[LINECREATIONSEQUENCENUMBER],
+T8.[LINETOTALCHARGEAMOUNT],
+T8.[LINEAMOUNT],
+T8.[INVENTORYSITEID],
+T8.[INVENTORYWAREHOUSEID],
+T8.[PRODUCTSIZEID],
+T8.[PRODUCTCOLORID],
+T8.[PRODUCTCONFIGURATIONID],
+T8.[PRODUCTSTYLEID],
+T8.[PRODUCTVERSIONID],
+T8.[ITEMBATCHNUMBER],
+T8.[ORDEREDINVENTORYSTATUSID],
+T8.[LEDGERVOUCHER],
+T8.[SALESPRODUCTCATEGORYNAME],
+T8.[SALESPRODUCTCATEGORYHIERARCHYNAME],
+T8.[DATAAREAID],
+T8.[SYNCSTARTDATETIME],
+T8.[RECID],
+T8.[TOTALINVOICEAMOUNT],
+T8.[INVOICECUSTOMERACCOUNTNUMBER],
+T8.[ITEMNUMBER],
+T8.[Product Helper],
+T8.[SALESID],
+T8.[INVENTTRANSID],
+T8.[SO Line Helper],
+T8.[FinDim Code],
+T8.[Sales Order Responsible Personnel Name],
+T8.[Project ID],
+T8.[SALESORDERNAME],
+T8.[Table],
+T9.[Cost]
+FROM
+(
 SELECT DISTINCT
         T1.[LINETOTALDISCOUNTAMOUNT],
         T1.[LINETOTALTAXAMOUNT],
@@ -53,7 +99,7 @@ SELECT DISTINCT
         T6.[Project ID],
         T6.[SALESORDERNAME],
         T6.[COMMISSIONSALESREPRESENTATIVEGROUPID], 
-        REPLACE(T6.[Table], null, 'Invoice Line') AS "Table"
+        REPLACE(T6.[Table], NULL, 'Invoice Line') AS "Table"
         FROM   [dbo].[SalesInvoiceLineV3Staging] T1
         LEFT JOIN                       ---Expanded Invoice Header 
         (   
@@ -149,3 +195,12 @@ UNION ALL                               ---Appended Project Invoice Line
     COMMISSIONSALESREPRESENTATIVEGROUPID, 
     [Table]
     FROM [dbo].[_invoice_ft_projinvoiceline] T7
+    ) T8
+    LEFT JOIN                           --- Expanded Inventory Transaction
+    (
+        SELECT
+            [Lot Id]
+            ,[Cost]
+            FROM [dbo].[_invoicecost_ft_inventorytransaction]
+    ) T9
+    ON T8.[INVENTTRANSID] = T9.[Lot Id]
