@@ -99,7 +99,7 @@ SELECT DISTINCT
         T6.[Project ID],
         T6.[SALESORDERNAME],
         T6.[COMMISSIONSALESREPRESENTATIVEGROUPID], 
-        REPLACE(T6.[Table], NULL, 'Invoice Line') AS "Table"
+        COALESCE(T6.[Table], 'Invoice Line') AS "Table"
         FROM   [dbo].[SalesInvoiceLineV3Staging] T1
         LEFT JOIN                       ---Expanded Invoice Header 
         (   
