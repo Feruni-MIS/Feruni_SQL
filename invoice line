@@ -44,7 +44,8 @@ T8.[Sales Order Responsible Personnel Name],
 T8.[Project ID],
 T8.[SALESORDERNAME],
 T8.[Table],
-T9.[Cost]
+T9.[Cost],
+T10.[COMMISSIONSALESREPRESENTATIVEGROUPID]
 FROM
 (
 SELECT DISTINCT
@@ -204,4 +205,12 @@ UNION ALL                               ---Appended Project Invoice Line
             FROM [dbo].[_invoicecost_ft_inventorytransaction]
     ) T9
     ON T8.[INVENTTRANSID] = T9.[Lot Id]
+    LEFT JOIN                           --- Expanded Inventory Transaction
+    (
+        SELECT
+            [COMMISSIONSALESREPRESENTATIVEGROUPID]
+            ,[SO Line Helper]
+            FROM [dbo].[_salesorder_ft_soline]
+    ) T10
+    ON T8.[SO Line Helper] = T10.[SO Line Helper]
     WHERE T8.[ITEMNUMBER] NOT LIKE '%Gift Card%'
