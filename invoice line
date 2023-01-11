@@ -204,3 +204,4 @@ UNION ALL                               ---Appended Project Invoice Line
             FROM [dbo].[_invoicecost_ft_inventorytransaction]
     ) T9
     ON T8.[INVENTTRANSID] = T9.[Lot Id]
+    WHERE T8.[ITEMNUMBER] NOT LIKE '%Gift Card%'
