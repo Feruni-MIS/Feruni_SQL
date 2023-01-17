@@ -1,49 +1,10 @@
-INSERT INTO [dbo].[Sales Group]
-VALUES('adlyn', 'ADLYN BINTI HAZIZAN'),
-('AL:VL', 'Vivian Lau'),
-('alexlim', 'Alex Lim'),
-('arthur', 'Arthur Ho'),
-('Bruce Lim', 'Bruce Lim'),
-('CDYEOW', 'Yeow Cin Dee'),
-('christan', 'Chris Tan'),
-('ChrisTing', 'Christopher Ting'),
-('CT:LZ', 'Hoong Ling Tze'),
-('cygan', 'CY Gan'),
-('darrenchan', 'Darren Chan'),
-('DC:VL', 'Darren Chan'),
-('DESLOH', 'Desmond Loh'),
-('Donna', 'Donna'),
-('EdwinFoo', 'Edwin Foo'),
-('eliza', 'Eliza'),
-('Frankie', 'Frankie'),
-('ginakuan', 'Gina Kuan'),
-('Has:Lz', 'Hasbullah'),
-('Hasbullah', 'Hasbullah'),
-('Hazli', 'Mohamad Hazli'),
-('HM:AL', 'HM Hew'),
-('HM:Ct', 'Chris Tan'),
-('HM:RM', 'HM Hew'),
-('hmhew', 'hmhew'),
-('Jamilah', 'Jamilah'),
-('JuliaToh', 'Julia Toh'),
-('KE:LZ', 'Kent Low'),
-('kentay', 'Ken Tay'),
-('KentLow', 'Kent Low'),
-('ksmang', 'ksmang'),
-('LingTze', 'Hoong Ling Tze'),
-('LT: MA', 'Hoong Ling Tze'),
-('marina', 'marina'),
-('myphang', 'myphang'),
-('nicoletan', 'Nicole PS Tan'),
-('NT:CC:PE', 'Nicole Tan'),
-('NT:RM', 'Nicole Tan'),
-('NurHuda', 'Nur Huda'),
-('rachelkoo', 'Rachel Koo'),
-('sangkar', 'Sangkar A/L Thiravidaselyam'),
-('Sara', 'Nursara'),
-('smtam', 'Tam Si Mun'),
-('SW:LZ', 'swhow'),
-('swhow', 'swhow'),
-('sychong', 'sychong'),
-('vivianlau', 'Vivian Lau'),
-('VL:DC', 'Vivian Lau')
+ SELECT 
+        [DATAAREAID]
+        ,[GROUPID]
+        ,[GROUPNAME]
+        ,T2.[PERSONNELNUMBER]
+        ,T2.[KNOWNAS]
+        ,T2.[PARTYNUMBER]
+    FROM [dbo].[CommissionSalesRepresentativeGroupStaging] T1 
+    LEFT JOIN [dbo].[_humanresources_dm_employee] T2
+    on T1.[GROUPNAME] = T2.[NAME]
