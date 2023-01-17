@@ -4,8 +4,8 @@ INSERT INTO [dbo].[_salesorder_ft_soline]
 SELECT DISTINCT 
        T3.[DEFAULTLEDGERDIMENSIONDISPLAYVALUE],
        T1.[MAINACCOUNTIDDISPLAYVALUE],
-       T1.[RETURNORDERNUMBER]      AS 'SALESORDERNUMBER',
-       T1.[RETURNINVENTORYLOTID]   AS 'INVENTORYLOTID',
+       T1.[RETURNORDERNUMBER]      AS "SALESORDERNUMBER",
+       T1.[RETURNINVENTORYLOTID]   AS "INVENTORYLOTID",
        NULL                        AS SALESORDERLINESTATUS,
        NULL                        AS CUSTOMERSLINENUMBER,
        NULL                        AS BOMID,
@@ -50,14 +50,14 @@ SELECT DISTINCT
        T1.[DATAAREAID],
        T1.[INVOICECUSTOMERACCOUNTNUMBER],
        NULL                        AS QUOTATIONNUMBER,
-       T1.[ORDERCREATIONDATE] AS 'ORDERCREATIONDATETIME',
+       T1.[ORDERCREATIONDATE]      AS "ORDERCREATIONDATETIME",
        NULL                        AS PROJECTNAME,
        NULL                        AS SALESTAKER,
-       NULL                        AS 'Project ID',
-       NULL                        AS 'Order Responsible Personnel Number',
-       NULL                        AS 'Order Taker Personnel Number',
-       NULL                        AS 'FinDim Code',
-       'Product Helper' = Substring
+       NULL                        AS "Project ID",
+       NULL                        AS "Order Responsible Personnel Number",
+       NULL                        AS "Order Taker Personnel Number",
+       NULL                        AS "FinDim Code",
+       "Product Helper" = Substring
                           (       
                             T1.[ITEMNUMBER]
                                    + IIF( T1.[PRODUCTCOLORID] = NULL, '', T1.[PRODUCTCOLORID] )
@@ -67,10 +67,10 @@ SELECT DISTINCT
                                    1,
                             200
                             ),
-       T1.[RETURNORDERNUMBER] + ';' + T1.[RETURNINVENTORYLOTID] AS 'SO Line Helper',
+       T1.[RETURNORDERNUMBER] + ';' + T1.[RETURNINVENTORYLOTID] AS "SO Line Helper",
        T4.[SO, RO Line Status Description],
-       NULL                        AS 'Fulfilment Status Description',
-       'Return Order Line Table'   AS 'Table',
+       NULL                        AS "Fulfilment Status Description",
+       'Return Order Line Table'   AS "Table",
        T1.[RMANUMBER],
        T1.[RETURNSTATUS],
        T1.[RETURNSITEID],
@@ -81,11 +81,13 @@ SELECT DISTINCT
        T5.[ORGANIZATIONNAME],                           ---ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
        T5.[CUSTOMERGROUPID],                            ---ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
        T5.[REFERRAL],                                   ---ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
-       NULL                        AS 'SA Code',                     ---ADDED BY YT
-       NULL                        AS 'SALESORDERNAME',              ---ADDED BY YT
-       NULL                        AS 'LOADSCHEDULEDSHIPDATE',       ---ADDED BY YT
-       NULL                        AS 'CUSTOMERREQUISITIONNUMBER',   ---ADDED BY YT
-       NULL                        AS 'PAYMENTDATE'                  ---ADDED BY JC
+       NULL                        AS "SA Code",                     ---ADDED BY YT
+       NULL                        AS "SALESORDERNAME",              ---ADDED BY YT
+       NULL                        AS "LOADSCHEDULEDSHIPDATE",       ---ADDED BY YT
+       NULL                        AS "CUSTOMERREQUISITIONNUMBER",   ---ADDED BY YT
+       NULL                        AS "PAYMENTDATE",                 ---ADDED BY JC
+       NULL                        AS "Sales Group Personnel Number"
+
 FROM   ReturnOrderLineStaging
 AS T1
 LEFT JOIN
@@ -193,10 +195,10 @@ SELECT DISTINCT
                             1,
                             200
                           ),
-       T1.[SALESORDERNUMBER] + ';'+ T1.[INVENTORYLOTID] AS 'SO Line Helper',
+       T1.[SALESORDERNUMBER] + ';'+ T1.[INVENTORYLOTID] AS "SO Line Helper",
        T5.[SO, RO Line Status Description],
        T6.[Fulfillment Status Description],
-       'SO Line Table'                           AS 'Table',
+       'SO Line Table'                           AS "Table",
        NULL                                      AS [RMANUMBER],
        NULL                                      AS RETURNSTATUS,
        NULL                                      AS RETURNSITEID,
@@ -211,23 +213,25 @@ SELECT DISTINCT
        T2.[SALESORDERNAME],
        T1.[LOADSCHEDULEDSHIPDATE],
        T1.[CUSTOMERREQUISITIONNUMBER],
-       T2.[PAYMENTDATE]
+       T2.[PAYMENTDATE],
+       T9.[PERSONNELNUMBER] AS "Sales Group Personnel Number"
 FROM   [dbo].[SalesOrderLineV2Staging] AS T1
 LEFT JOIN 
-(SELECT
-              [SALESORDERNUMBER],
-              [INVOICECUSTOMERACCOUNTNUMBER],
-              [QUOTATIONNUMBER],
-              [ORDERRESPONSIBLEPERSONNELNUMBER],
-              [ORDERTAKERPERSONNELNUMBER],
-              [ORDERCREATIONDATETIME],
-              [PROJECTNAME],
-              [PAX_PROJECTID],
-              [SALESTAKER],
-              [PROJECTID],
-              [SALESORDERNAME],
-              [PAYMENTDATE],
-              CASE WHEN [PROJECTID] <> NULL THEN [PROJECTID] ELSE [PAX_PROJECTID] END "Project ID"
+(
+    SELECT
+        [SALESORDERNUMBER],
+        [INVOICECUSTOMERACCOUNTNUMBER],
+        [QUOTATIONNUMBER],
+        [ORDERRESPONSIBLEPERSONNELNUMBER],
+        [ORDERTAKERPERSONNELNUMBER],
+        [ORDERCREATIONDATETIME],
+        [PROJECTNAME],
+        [PAX_PROJECTID],
+        [SALESTAKER],
+        [PROJECTID],
+        [SALESORDERNAME],
+        [PAYMENTDATE],
+        CASE WHEN [PROJECTID] <> NULL THEN [PROJECTID] ELSE [PAX_PROJECTID] END "Project ID"
        FROM   [dbo].[SalesOrderHeaderV2Staging]
        WHERE [DATAAREAID]='FCSB'
        )
@@ -235,15 +239,15 @@ T2
 ON T1.[SALESORDERNUMBER] = T2.[SALESORDERNUMBER]
 LEFT JOIN 
 (
-       SELECT DISTINCT 
-              [PERSONNELNUMBER],
-              [NAME] AS 'Order Responsible Personnel Number'
-       FROM   [dbo].[HcmEmployeeV2Staging]
+    SELECT DISTINCT 
+        [PERSONNELNUMBER],
+        [NAME] AS 'Order Responsible Personnel Number'
+        FROM   [dbo].[HcmEmployeeV2Staging]
 ) T3
 ON T2.[ORDERRESPONSIBLEPERSONNELNUMBER] = T3.[PERSONNELNUMBER]
 LEFT JOIN 
 (
-       SELECT DISTINCT 
+    SELECT DISTINCT 
        [PERSONNELNUMBER],
        [NAME] AS 'Order Taker Personnel Number'
        FROM   [dbo].[HcmEmployeeV2Staging]
@@ -251,38 +255,46 @@ LEFT JOIN
 ON T2.[ORDERTAKERPERSONNELNUMBER] = T4.[PERSONNELNUMBER]
 LEFT JOIN 
 (
-       SELECT 
-              [Line Status],
-              [SO Line Status Description] AS 'SO, RO Line Status Description'
-       FROM   [dbo].[_salesorder_df_solinestatus]
+    SELECT 
+        [Line Status],
+        [SO Line Status Description] AS 'SO, RO Line Status Description'
+        FROM   [dbo].[_salesorder_df_solinestatus]
 ) T5
 ON T1.[SALESORDERLINESTATUS] = T5.[Line Status]
 LEFT JOIN 
 (
-       SELECT 
-              [Fulfillment Status],
-              [Fulfillment Status Description]
-       FROM   [dbo].[_salesorder_df_solinefulfillmentstatus]
+    SELECT 
+        [Fulfillment Status],
+        [Fulfillment Status Description]
+        FROM   [dbo].[_salesorder_df_solinefulfillmentstatus]
 ) T6
 ON T1.[FULFILLMENTSTATUS] = T6.[Fulfillment Status]
 LEFT JOIN 
 (
-       SELECT 
-              CAST([INVENTQTY] AS INT) as 'Packing Slip InventQty', 
-              [INVENTTRANSID]
-       FROM [dbo].[PaxCustPackingSlipsStaging]
+    SELECT 
+        CAST([INVENTQTY] AS INT) as 'Packing Slip InventQty', 
+        [INVENTTRANSID]
+        FROM [dbo].[PaxCustPackingSlipsStaging]
 ) T7
 ON T1.[INVENTORYLOTID] = T7.[INVENTTRANSID]
 LEFT JOIN 
 (
-  SELECT
+    SELECT
         [CUSTOMERACCOUNT]
         ,[ORGANIZATIONNAME]
         ,[CUSTOMERGROUPID]
         ,[REFERRAL]
-    FROM [dbo].[CustCustomerV3Staging]
+        FROM [dbo].[CustCustomerV3Staging]
 ) T8 
 ON T2.[INVOICECUSTOMERACCOUNTNUMBER]= T8.[CUSTOMERACCOUNT]
+LEFT JOIN
+(
+    SELECT
+        [PERSONNELNUMBER]
+        ,[GROUPID]
+        FROM [dbo].[_humanresources_df_salesgroup]
+) T9
+on T1.[COMMISSIONSALESREPRESENTATIVEGROUPID] = T9.[GROUPID]
 WHERE LINEAMOUNT <> 0
 AND [DATAAREAID] = 'FCSB'
 AND NOT(SALESORDERNAME like '%Reserved%')
