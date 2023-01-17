@@ -76,18 +76,17 @@ SELECT DISTINCT
        T1.[RETURNSITEID],
        T2.[REPLACEMENTSALESORDERNUMBER],
        T3.[ORDERTAKERPERSONNELNUMBER],
-       T3.[ORDERRESPONSIBLEPERSONNELNUMBER],            ---ADDED BY KE using for sales person dimension
-       T5.[CUSTOMERACCOUNT],                            ---ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
-       T5.[ORGANIZATIONNAME],                           ---ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
-       T5.[CUSTOMERGROUPID],                            ---ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
-       T5.[REFERRAL],                                   ---ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
+       T3.[ORDERRESPONSIBLEPERSONNELNUMBER],                         ---ADDED BY KE using for sales person dimension
+       T5.[CUSTOMERACCOUNT],                                         ---ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
+       T5.[ORGANIZATIONNAME],                                        ---ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
+       T5.[CUSTOMERGROUPID],                                         ---ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
+       T5.[REFERRAL],                                                ---ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
        NULL                        AS "SA Code",                     ---ADDED BY YT
        NULL                        AS "SALESORDERNAME",              ---ADDED BY YT
        NULL                        AS "LOADSCHEDULEDSHIPDATE",       ---ADDED BY YT
        NULL                        AS "CUSTOMERREQUISITIONNUMBER",   ---ADDED BY YT
        NULL                        AS "PAYMENTDATE",                 ---ADDED BY JC
        NULL                        AS "Sales Group Personnel Number"
-
 FROM   ReturnOrderLineStaging
 AS T1
 LEFT JOIN
@@ -104,7 +103,7 @@ LEFT JOIN
               [COMMISSIONSALESREPRESENTATIVEGROUPID],
               [DEFAULTLEDGERDIMENSIONDISPLAYVALUE],
               [ORDERTAKERPERSONNELNUMBER],
-              [ORDERRESPONSIBLEPERSONNELNUMBER],                      ---ADDED BY KE using for sales person dimension
+              [ORDERRESPONSIBLEPERSONNELNUMBER],                     ---ADDED BY KE using for sales person dimension
               [SALESORDERNUMBER]
        FROM   [dbo].[SalesOrderHeaderV2Staging]
 ) T3
@@ -148,7 +147,7 @@ SELECT DISTINCT
        T1.[SALESPRICEQUANTITY],
        T1.[CONFIRMEDRECEIPTDATE],
        T1.[REQUESTEDRECEIPTDATE],
-       T1.[COMMISSIONSALESREPRESENTATIVEGROUPID],                     --ADDED BY KE for retail analysis
+       T1.[COMMISSIONSALESREPRESENTATIVEGROUPID],                    ---ADDED BY KE for retail analysis
        T1.[SALESPRICE],
        T1.[ORDEREDSALESQUANTITY],
        T1.[SALESUNITSYMBOL],
