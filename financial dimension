@@ -1,7 +1,7 @@
-TRUNCATE FROM [dbo].[_finance_dm_financialdimension]
+TRUNCATE TABLE [dbo].[_finance_dm_financialdimension]
 
 INSERT INTO [dbo].[_finance_dm_financialdimension]
-VALUES('FCSB', 'FCSB', '', '', 'Empty', '', '')
+VALUES('FCSB', 'FCSB', '', '', 'Empty', '', '', '', '', '', '', '')
 
 INSERT INTO [dbo].[_finance_dm_financialdimension]
 SELECT 
@@ -11,7 +11,54 @@ SELECT
     T4.[Cost Center],
     T5.[Department Description],
     T5.[Division Nature],
-    COALESCE(T6.[Cost Center Description], '') AS 'Cost Center Description'
+    COALESCE(T6.[Cost Center Description], '') AS 'Cost Center Description',
+    CASE
+        WHEN T4.[Department] = 'D101'
+        THEN 'CCO'
+        WHEN T4.[Department] = 'D101'
+        THEN 'CFO'
+        WHEN T4.[Department] = 'D000' or T4.[Department] = 'D106'
+        THEN 'CEO'
+        WHEN T4.[Department] = 'D102' or T4.[Department] = 'D103' or T4.[Department] = 'D104' or T4.[Department] = 'D107' or T4.[Department] = 'D108' or T4.[Department] = 'D109'
+        THEN 'CRO'
+        ELSE ''
+        END AS "HoD", 
+    CASE
+        WHEN T4.[Department] = 'D000' or T4.[Department] = 'D105'
+        THEN 'Back Office'
+        WHEN T4.[Department] = 'D101' or T4.[Department] = 'D102' or T4.[Department] = 'D103' or T4.[Department] = 'D104' or T4.[Department] = 'D106' or T4.[Department] = 'D107' or T4.[Department] = 'D108' or T4.[Department] = 'D109'
+        THEN 'Front Office'
+        ELSE ''
+        END AS "Office Division", 
+    CASE
+        WHEN T4.[Department] = 'D102' or T4.[Department] = 'D107' or T4.[Department] = 'D108'
+        THEN 'Biz Partner'
+        WHEN T4.[Department] = 'D101' or T4.[Department] = 'D103' or T4.[Department] = 'D104' or T4.[Department] = 'D105' or T4.[Department] = 'D106'
+        THEN 'Company Owner'
+        ELSE ''
+        END AS "Ownership",
+    CASE
+        WHEN T4.[Cost Center] = 'M003' or T4.[Cost Center] = 'M011' or T4.[Cost Center] = 'M009' or T4.[Cost Center] = 'M007' or T4.[Cost Center] = 'M001'
+        THEN 'Klang Valley'
+        WHEN T4.[Cost Center] = 'M002' or T4.[Cost Center] = 'M004' or T4.[Cost Center] = 'M005' or T4.[Cost Center] = 'M006' or T4.[Cost Center] = 'M008' or T4.[Cost Center] = 'M010'
+        THEN 'Outstation'
+        ELSE ''
+        END AS "Region",
+    CASE
+        WHEN T4.[Department] = 'D102' or T4.[Department] = 'D103' or T4.[Department] = 'D107' or T4.[Department] = 'D108' or T4.[Department] = 'D109'
+        THEN 'Retail'
+        WHEN T4.[Department] = 'D101'
+        THEN 'Project'
+        WHEN T4.[Department] = 'D106'
+        THEN 'Export'
+        WHEN T4.[Department] = 'D104'
+        THEN 'e-Commerce'
+        WHEN T4.[Department] = 'D000'
+        THEN 'Corporate'
+        WHEN T4.[Department] = 'D105'
+        THEN 'Voided'
+        ELSE ''
+        END AS "Segment"
 FROM 
 (
     SELECT 
@@ -48,14 +95,14 @@ FROM
                 WHEN CHARINDEX('R',T2.[ACCOUNTDISPLAYVALUE]) >0 AND CHARINDEX('R',T2.[ACCOUNTDISPLAYVALUE]) >0 
                 THEN SUBSTRING(T2.[ACCOUNTDISPLAYVALUE],CHARINDEX('R',T2.[ACCOUNTDISPLAYVALUE]),4)
                 ELSE ''
-            END AS 'Cost Center'
+            END AS "Cost Center"
         FROM
         (
             SELECT 
                 [ACCOUNTDISPLAYVALUE],
                 [DATAAREAID],  
-                'FinDim Code' = 
-                    [DATAAREAID]+RIGHT([ACCOUNTDISPLAYVALUE],LEN([ACCOUNTDISPLAYVALUE])-CHARINDEX('-',[ACCOUNTDISPLAYVALUE])+1)
+                "FinDim Code" = 
+                    [DATAAREAID] + RIGHT([ACCOUNTDISPLAYVALUE], LEN([ACCOUNTDISPLAYVALUE]) - CHARINDEX('-', [ACCOUNTDISPLAYVALUE]) + 1)
             FROM [dbo].[GeneralJournalAccountEntryStaging]
             GROUP BY 
                 [DATAAREAID], 
@@ -71,7 +118,7 @@ FROM
             FROM 
             (
                 SELECT [DIMENSIONDISPLAYVALUE] AS 'ACCOUNTDISPLAYVALUE', [LEGALENTITYID] AS 'DATAAREAID',
-                'FinDim Code' = [LEGALENTITYID]+RIGHT([DIMENSIONDISPLAYVALUE],LEN([DIMENSIONDISPLAYVALUE])-CHARINDEX('-',[DIMENSIONDISPLAYVALUE])+1)
+                "FinDim Code" = [LEGALENTITYID]+RIGHT([DIMENSIONDISPLAYVALUE],LEN([DIMENSIONDISPLAYVALUE])-CHARINDEX('-',[DIMENSIONDISPLAYVALUE])+1)
                 FROM [dbo].[BudgetRegisterEntryStaging]
             )T1
             WHERE 
