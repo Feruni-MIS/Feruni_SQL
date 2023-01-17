@@ -1,3 +1,6 @@
+ TRUNCATE TABLE [dbo].[_humanresources_df_salesgroup]
+ INSERT INTO [dbo].[_humanresources_df_salesgroup]
+ 
  SELECT 
         [DATAAREAID]
         ,[GROUPID]
