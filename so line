@@ -56,8 +56,12 @@ SELECT DISTINCT
        NULL                        AS "PROJECTNAME",
        NULL                        AS "SALESTAKER",
        NULL                        AS "Project ID",
-       NULL                        AS "Order Responsible Personnel Number",
-       NULL                        AS "Order Taker Personnel Number",
+	   T3.[ORDERRESPONSIBLEPERSONNELNUMBER],						---ADDED BY KE using for sales person dimension
+       NULL                        AS "Order Responsible Personnel Name",
+	   T3.[ORDERTAKERPERSONNELNUMBER],
+       NULL                        AS "Order Taker Personnel Name",
+	   NULL                        AS "SALESGROUPPERSONNELNUMBER",
+	   NULL                        AS "Sales Group Personnel Name",
        NULL                        AS "FinDim Code",
        "Product Helper" = Substring
                           (       
@@ -76,9 +80,7 @@ SELECT DISTINCT
        T1.[RMANUMBER],
        T1.[RETURNSTATUS],
        T1.[RETURNSITEID],
-       T2.[REPLACEMENTSALESORDERNUMBER],
-       T3.[ORDERTAKERPERSONNELNUMBER],
-       T3.[ORDERRESPONSIBLEPERSONNELNUMBER],                         ---ADDED BY KE using for sales person dimension
+       T2.[REPLACEMENTSALESORDERNUMBER],                  
        T5.[CUSTOMERACCOUNT],                                         ---ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
        T5.[ORGANIZATIONNAME],                                        ---ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
        T5.[CUSTOMERGROUPID],                                         ---ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
@@ -87,8 +89,7 @@ SELECT DISTINCT
        NULL                        AS "SALESORDERNAME",              ---ADDED BY YT
        NULL                        AS "LOADSCHEDULEDSHIPDATE",       ---ADDED BY YT
        NULL                        AS "CUSTOMERREQUISITIONNUMBER",   ---ADDED BY YT
-       NULL                        AS "PAYMENTDATE",                 ---ADDED BY JC
-       NULL                        AS "Sales Group Personnel Number"
+       NULL                        AS "PAYMENTDATE"                  ---ADDED BY JC
 FROM   ReturnOrderLineStaging
 AS T1
 LEFT JOIN
@@ -185,10 +186,14 @@ SELECT DISTINCT
        T2.[PROJECTNAME],
        T2.[SALESTAKER],
        T2.[Project ID] AS 'Project ID',
-       T3.[Order Responsible Personnel Number],
-       T4.[Order Taker Personnel Number],
+       T2.[ORDERRESPONSIBLEPERSONNELNUMBER],     ---ADDED by KE FOR SALES PERSON DIMENSION
+       T3.[Order Responsible Personnel Name],
+       T2.[ORDERTAKERPERSONNELNUMBER],
+       T4.[Order Taker Personnel Name],
+       T9.[SALESGROUPPERSONNELNUMBER],
+	   T9.[Sales Group Personnel Name],
        T1.[DATAAREAID] + T1.[DEFAULTLEDGERDIMENSIONDISPLAYVALUE] AS 'FinDim Code',
-       'Product Helper' = Substring
+       "Product Helper" = Substring
                           (
                             T1.[ITEMNUMBER]
                             + IIF( T1.[PRODUCTCOLORID] = NULL, '', T1.[PRODUCTCOLORID] )
@@ -206,8 +211,6 @@ SELECT DISTINCT
        NULL                                      AS RETURNSTATUS,
        NULL                                      AS RETURNSITEID,
        NULL                                      AS REPLACEMENTSALESORDERNUMBER,
-       T2.[ORDERTAKERPERSONNELNUMBER],
-       T2.[ORDERRESPONSIBLEPERSONNELNUMBER],     ---ADDED by KE using for sales person dimension
        T8.[CUSTOMERACCOUNT],                     ---ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
        T8.[ORGANIZATIONNAME],                    ---ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
        T8.[CUSTOMERGROUPID],                     ---ADDED BY KE REQUIRED FOR CUSTOMER INFO IN RETAIL SALES FUNNEL
@@ -216,8 +219,7 @@ SELECT DISTINCT
        T2.[SALESORDERNAME],
        T1.[LOADSCHEDULEDSHIPDATE],
        T1.[CUSTOMERREQUISITIONNUMBER],
-       T2.[PAYMENTDATE],
-       T9.[PERSONNELNUMBER] AS "Sales Group Personnel Number"
+       T2.[PAYMENTDATE]
 FROM   [dbo].[SalesOrderLineV2Staging] AS T1
 LEFT JOIN 
 (
@@ -244,7 +246,7 @@ LEFT JOIN
 (
     SELECT DISTINCT 
         [PERSONNELNUMBER],
-        [NAME] AS 'Order Responsible Personnel Number'
+        [NAME] AS 'Order Responsible Personnel Name'
         FROM   [dbo].[HcmEmployeeV2Staging]
 ) T3
 ON T2.[ORDERRESPONSIBLEPERSONNELNUMBER] = T3.[PERSONNELNUMBER]
@@ -252,7 +254,7 @@ LEFT JOIN
 (
     SELECT DISTINCT 
        [PERSONNELNUMBER],
-       [NAME] AS 'Order Taker Personnel Number'
+       [NAME] AS 'Order Taker Personnel Name'
        FROM   [dbo].[HcmEmployeeV2Staging]
 ) T4
 ON T2.[ORDERTAKERPERSONNELNUMBER] = T4.[PERSONNELNUMBER]
@@ -293,7 +295,8 @@ ON T2.[INVOICECUSTOMERACCOUNTNUMBER]= T8.[CUSTOMERACCOUNT]
 LEFT JOIN
 (
     SELECT
-        [PERSONNELNUMBER]
+        [PERSONNELNUMBER] AS "SALESGROUPPERSONNELNUMBER",
+		[GROUPNAME] AS "Sales Group Personnel Name"
         ,[GROUPID]
         FROM [dbo].[_humanresources_df_salesgroup]
 ) T9
