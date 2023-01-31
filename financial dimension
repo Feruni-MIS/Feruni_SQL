@@ -13,49 +13,49 @@ SELECT
     T5.[Division Nature],
     COALESCE(T6.[Cost Center Description], '') AS 'Cost Center Description',
     CASE
-        WHEN T4.[Department] = 'D101'
+        WHEN T4.[Department] IN ('D101')
         THEN 'CCO'
-        WHEN T4.[Department] = 'D101'
+        WHEN T4.[Department] IN ('D101')
         THEN 'CFO'
-        WHEN T4.[Department] = 'D000' or T4.[Department] = 'D106'
+        WHEN T4.[Department] IN ('D000', 'D106')
         THEN 'CEO'
-        WHEN T4.[Department] = 'D102' or T4.[Department] = 'D103' or T4.[Department] = 'D104' or T4.[Department] = 'D107' or T4.[Department] = 'D108' or T4.[Department] = 'D109'
+        WHEN T4.[Department] IN ('D102', 'D103', 'D104', 'D107', 'D108', 'D109')
         THEN 'CRO'
         ELSE ''
         END AS "HoD", 
     CASE
-        WHEN T4.[Department] = 'D000' or T4.[Department] = 'D105'
+        WHEN T4.[Department] IN ('D000', 'D105')
         THEN 'Back Office'
-        WHEN T4.[Department] = 'D101' or T4.[Department] = 'D102' or T4.[Department] = 'D103' or T4.[Department] = 'D104' or T4.[Department] = 'D106' or T4.[Department] = 'D107' or T4.[Department] = 'D108' or T4.[Department] = 'D109'
+        WHEN T4.[Department] IN ('D101', 'D102', 'D103', 'D104', 'D106', 'D107', 'D108', 'D109')
         THEN 'Front Office'
         ELSE ''
         END AS "Office Division", 
     CASE
-        WHEN T4.[Department] = 'D102' or T4.[Department] = 'D107' or T4.[Department] = 'D108'
+        WHEN T4.[Department] IN ('D102', 'D107', 'D108')
         THEN 'Biz Partner'
-        WHEN T4.[Department] = 'D101' or T4.[Department] = 'D103' or T4.[Department] = 'D104' or T4.[Department] = 'D105' or T4.[Department] = 'D106'
+        WHEN T4.[Department] IN ('D101', 'D103', 'D104', 'D105', 'D106')
         THEN 'Company Owner'
         ELSE ''
         END AS "Ownership",
     CASE
-        WHEN T4.[Cost Center] = 'M003' or T4.[Cost Center] = 'M011' or T4.[Cost Center] = 'M009' or T4.[Cost Center] = 'M007' or T4.[Cost Center] = 'M001'
+        WHEN T4.[Cost Center] IN ('M003', 'M011', 'M009', 'M007', 'M001')
         THEN 'Klang Valley'
-        WHEN T4.[Cost Center] = 'M002' or T4.[Cost Center] = 'M004' or T4.[Cost Center] = 'M005' or T4.[Cost Center] = 'M006' or T4.[Cost Center] = 'M008' or T4.[Cost Center] = 'M010'
+        WHEN T4.[Cost Center] IN ('M002', 'M004', 'M005', 'M006', 'M008', 'M010')
         THEN 'Outstation'
         ELSE ''
         END AS "Region",
     CASE
-        WHEN T4.[Department] = 'D102' or T4.[Department] = 'D103' or T4.[Department] = 'D107' or T4.[Department] = 'D108' or T4.[Department] = 'D109'
+        WHEN T4.[Department] IN ('D102', 'D103', 'D107', 'D108', 'D109')
         THEN 'Retail'
-        WHEN T4.[Department] = 'D101'
+        WHEN T4.[Department] IN ('D101')
         THEN 'Project'
-        WHEN T4.[Department] = 'D106'
+        WHEN T4.[Department] IN ('D106')
         THEN 'Export'
-        WHEN T4.[Department] = 'D104'
+        WHEN T4.[Department] IN ('D104')
         THEN 'e-Commerce'
-        WHEN T4.[Department] = 'D000'
+        WHEN T4.[Department] IN ('D000')
         THEN 'Corporate'
-        WHEN T4.[Department] = 'D105'
+        WHEN T4.[Department] IN ('D105')
         THEN 'Voided'
         ELSE ''
         END AS "Segment"
