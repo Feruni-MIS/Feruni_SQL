@@ -4,17 +4,27 @@ INSERT INTO [dbo].[_customer_dm_customer]
 SELECT
     T1.[CUSTOMERACCOUNT]
     ,T1.[ORGANIZATIONNAME]
-    ,
-    (
-        CASE
-        WHEN T1.[ADDRESSLOCATIONID] = '' THEN 'Nil'
-        ELSE T1.[ADDRESSLOCATIONID]
-        END
-    ) AS "ADDRESSLOCATIONID"
+    ,T1.[ADDRESSLOCATIONID]
     ,T1.[PRIMARYCONTACTPHONE]
     ,T1.[PARTNERTXT]
-    ,CONCAT(T1.[DATAAREAID], T1.[DEFAULTDIMENSIONDISPLAYVALUE]) AS "FinDim Code"
+    ,T1.[FinDim Code]
     ,T2.[Department Description]
-    FROM [dbo].[CustCustomerV3Staging] T1
+    FROM
+    (
+    SELECT
+        [CUSTOMERACCOUNT]
+        ,[ORGANIZATIONNAME]
+        ,
+        (
+            CASE
+            WHEN [ADDRESSLOCATIONID] = '' THEN 'Nil'
+            ELSE [ADDRESSLOCATIONID]
+            END
+        ) AS "ADDRESSLOCATIONID"
+        ,[PRIMARYCONTACTPHONE]
+        ,[PARTNERTXT]
+        ,CONCAT([DATAAREAID], [DEFAULTDIMENSIONDISPLAYVALUE]) AS "FinDim Code"
+        FROM [dbo].[CustCustomerV3Staging]
+    ) T1
     LEFT JOIN [dbo].[_finance_dm_financialdimension] T2
-    on "FinDim Code" = T2.[FinDim Code]
+    on T1.[FinDim Code] = T2.[FinDim Code]
